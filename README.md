@@ -12,3 +12,4 @@ This is a Mod of Minekhan
  - add clouds
  - Add a Mineing/ Drop Sys
  - Add Survival Mode/ Creative Mode Switch
+ - Add Cactus Damage
