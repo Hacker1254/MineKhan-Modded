@@ -10,3 +10,5 @@ This is a Mod of Minekhan
  - fix heath sys
  - add flowers
  - add clouds
+ - Add a Mineing/ Drop Sys
+# - Add Survival Mode/ Creative Mode Switch
