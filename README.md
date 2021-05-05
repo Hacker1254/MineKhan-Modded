@@ -11,4 +11,4 @@ This is a Mod of Minekhan
  - add flowers
  - add clouds
  - Add a Mineing/ Drop Sys
-# - Add Survival Mode/ Creative Mode Switch
+ - Add Survival Mode/ Creative Mode Switch
