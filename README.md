@@ -3,7 +3,7 @@ Warning: Beta
 This is a Mod of Minekhan
 
 # Plans
-https://github.com/Hacker1254/MineKhan-Modded/projects/
+[Click Me!](https://github.com/Hacker1254/MineKhan-Modded/projects/1?fullscreen=true)
 
 # What We Are Gonna do Before The Survival Beta 
 
