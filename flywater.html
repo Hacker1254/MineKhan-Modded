@@ -3,7 +3,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Beta Survival!</title>
+		<title>MineKhan Modded With Biomes And Health!</title>
 		<link id="vtfont" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 	</head>
 	<style>
@@ -108,7 +108,7 @@
 		Then save the program as a Spin-off.
 	</p>
 		<p id="message" hidden="true" style="position: absolute; top: 10px; right: 10px; z-index: 1; text-align: right; background-color: rgba(255, 255, 255, 0.3);"></p>
-	<img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAIAAABv85FHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABSSURBVBhXZY7BDcAwCANZor88O0jH67KZgdgYEZSckDA+KYp58AUIFqjkwjHHi+lBPW8ktTUUcvek++05BBoKvdu1RP6l6xIstYB0CbAT6MLdFzGReAo/QKRrAAAAAElFTkSuQmCC' style='display:none' id='heartimg'>
+	<img src='https://www.kasandbox.org/programming-images/space/healthheart.png' style='display:none' id='heartimg'>
 	<div class="world-select hidden" id="worlds"></div>
 	<p id="message" class="hidden" style="position: absolute; top: 10px; right: 10px; z-index: 1; text-align: right; background-color: rgba(255, 255, 255, 0.3);"></p>
 	<script>
@@ -210,7 +210,6 @@ document.getElementsByClassName("_1chbfei")[0].setAttribute('style', 'max-width:
 var MathGlob = Math
 function MineKhan() {
 	let Math = MathGlob
-	let liquid = false
 	let setPixel, getPixels
 	let textures = {
 		grassTop: function(n) {
@@ -293,6 +292,9 @@ function MineKhan() {
 		stone: "0g0g40sywflr0wb8hdr0zdjj0f13tzldr3333211210112222221212222220012121001110111222222233232233222111122111212333312223222222211010131223331331112222110010112211122233323223332222212232223332233332021211001212211122222332222233232111232112200101332112211122111321122222222233332222221123322122",
 		logSide: "0g0g60fl1ssf0l5j1fj0qftm2n0wa7mdb14cs7wf16az8xr3143304330341432315230523034133230223052313113324032313232301342413230325232314343134131524131432313422343433143230343243342324331053324324242433315332332414303333432303231430331343230533053135133424052303323531343314231333343143340313114334314134131331432",
 		logTop: "0g0g90l5j1fj0qftm2n0wa7mdb0z2esxr15quebj189da7z1cpma671f7ppfj1hzyayn1012101120110111077776768667777017334454555544811738877776777471164766666666756107576445544674601646636666466471165764655656756116576465464674610657646666566460164764434556756116576666666674610757767777787460175454444444447117776676686677711011101120110211",
+		chesttop: "0g0gf0b4suew0dd0vlk0ddc4540fkxmns0xe32ew0zmb3lk11u7t2w11uj01k1424k541424lq0142fu9k18i998818i9at418ikjco1aqskjc011112221222222025989944444949512a7777ddeeedbea116cbbbbbbbcccc8124777ee7e77bdd9214bddde7dddd77412aedeee777beeea218cccccbbbcccc812aeeeb7eedddeea114777edd777be74129ddee7777dddd9116bbcccbbbbbcc612aeee7e77777dba224beeee7edd7774225444aa4aa49aa520113113111111111",
+		chestside: "0g0gn06oo26008wkt8808ww3co0b4suew0dd0vlk0ddc4540htgwe00htgxyw0sxydbs0v5v4e00v66eig0xe32ew0zlzth40zmb3lk11u7t2w11uj01k1424k541424lq0142fu9k18i998818i9at418ikjco1aqskjc76666777677777747mljllffffflflm37mffffllmmmljmm37kkjjjjjjjkkkkj37bbbbiibibbghhh364455554555544407aa9aaa8889aaaa36geeeeegggeeeec37mmmmjfmmlllmmi36ffffmllfffjmfb37lllmmffffllllh36kjjkkkjjjjjkke37mmmmfmffffflji37fjmmmmfmllfffb37ibbbiibiibhiid33333333333332331",
+		chestfront: "0g0g70ddc4540htgzjs0k1dp141aqhbzs1aqskjc1aqsm481lxhmgo2222222222222222244444444444444224444444444444422444444664444442244444466444444220000006600000022444444664444442244444444444444224444444444444422444444444445442244444444444444224444444444444422444444444444442244443443444444214444444444444422222222222222222",
 		bedrock: "0g0g509gy58f0e7f7r30o8fd330rkrev31627mkf3111124324211212133434341443012110110111412224232433202422111112014111121134433112221221102211014432344323443410222122211011213234421122344344442110121213211143334134410144431102221123442334402111321134111112343420211101234433211211234421121011044312301123",
 		glass: "0g0g50ybfh8f0znkiyo12rzshr1au95hb1lytipr4444444444444443411111111111111341114111111111104114111111111110413111111111111041111111111111124111111111111110411111111111111241111111111111124111111111111112411111111111111241111111111111123111111111111412411111111111411231111111111111133323222222222233",
 		cobblestone: "0g0g60muaccf0r0pekf0un11q711vr5rz1a8mosf1ef1r0f2144011454313543145330554330132314342143342101321132113232134310021354131154443152453321033543234313433211243215332233213541231321542213533311021543232233121341323231101221044532211235411035532354215434213323154331432332113244323212332143111311232121135432",
@@ -378,6 +380,7 @@ function MineKhan() {
 		quartzPillar: "0g0g41qe37y71sm5mv31tqfbb31uujcov0202031312130212020302130313031202131313120313020313130213031313131303120302121313020312031203131302131313020303120313031303130312130303131303120213131302131212131312130202120313021213120302031302120313031303130202130303131303120313031213120212131302121202",
 		quartzPillarTop: "0g0g51p9z6kf1qe37y71sm5mv31tqfbb31uujcov1021223242413020222122211221122002223434434322223123443344443211113412222221431242442344443244222243242222424423423324244142441222442424324234143244242211423322224423334432442421341222222143111123444444443213222234444443222002211222122112221203142423220200",
 		chiseledQuartzBlock: "0g0g61p9z6kf1qe37y71sm5mv31tq9ngf1tqfbb31uujcov0444404333022440043331222204444003322111000444300222223004443331023011101110022103315544432202200110441100220000554444144033344544433204314444440111230011441101054044444432154104400110111004401444454005544440133321100004443002323155440333300444414444132220",
+		mobspawnerside: "0g0g6000000006oo5bs06par5k0b4sz5k0b623nc0hv1iwo3222455544442223101001000010010112245554245542211010010000100101103003000030010112455542455422211010010000100101103001000010010110300300003001011030030000300301122455542455422110100100001001011030030000300101124555424554222110100100001001013222455544442223",
 		chiseledQuartzBlockTop: "0g0g51p9z6kf1qe37y71tq9ngf1tqfbb31uujcov0334314232133420021100022000112002044203204421200204120420412021020113032020003102233304212233200000000421110000323433442223344422222222222222220000001321000001044343142143222104011204214110201302130420313020120234032023403002111003201100400222314222133420",
 		chiseledStoneBricks: "0g0g70oigd8f0qqoef30sz21vj0xf6vpb0yjgikf11vskcf17g711b6666655666566562644424444224444054110000111123205206665566561530640654434442154064064322334315405205430005421630540632000643062052054300053206306215435655420630641644545432053064163232322215406421110000011530556655666655543053343234433232202000000000000000",
 		smoothStone: "0g0g70wb8hdr0yjgikf12zwkxr17gcnb318kgnwf1asop331d0wq9r1011002200220121054556666553445204334454444555501666455566655442255444545666645006555555554343412556664665545550243343443434466116656545555455620555554566656661054544334454454215555666665566622444566454433452165445556555455104456665566544401022112221000121",
@@ -390,7 +393,7 @@ function MineKhan() {
 		polishedDiorite: "0g0g80qqu0ov0xfi5tr11vy6m71asubcv1f94t1b1jpkttr1o60w731ri7bpb7776677777666774764556657643564166764466577434506565333565454441675334576435457176544567733456607566767655346450744765756564534063556655467534516566544565544761664334655465666075673555775644517557654375466340745654576435744072445566545654512101110001100110",
 		polishedGranite: "0g0g90l56fi70plgu0v0yhw0sf1424tmn17eb8cf1aqna4f1e3al8f1e3x7un1jnje2n8888786866866565843344345444334374744554442446418444243334553342844444453344443262343344443734428345543644444431844444423445544263422344554433636444433443344442734444444464334284473344244442318455444445543341633443264434455264443444334447412111001110111100",
 		cactusstop: "0g0gp000006w000b8qg000mha0000xptk0018yd40018zy0001k8hk001vh140026pko02a3gmw02a3i7s02aep6g02aeqrc02apzaw02b17ug02bcge002bnoxk02bnqig02byz2002ca7lk04k6yns04ki77c04ktfqw04kthbs04l4pvchh32bd40fhh628hhhlefjjgdnllihkkh3ekmnlg5imlccklh2fnllnjajmleellhbkleelmjmmnllmh7djlddjmmjfjnnle34gmmmonmj5fmmmle0djikonmnjlnkij4flj77jlilmmja5e0hmmhilf3ilmmihjd3flllljfkjlkkmlh7hlnllmnj9fddlj6hmmlgennj9fddlj6hkmld9jnoillkljhhdglkfdjldilhcehh23dhc2f60ch717h",
-		cactusSide: "0g0gk000006w001k8hk02a3gmw02a3i7s02aeqrc02apzaw02b17ug02bcge002bchyw02bnoxk02bnqig02byz2002ca7lk02clg5404k6yns04ki77c04ki8s804ktfqw04kthbs04l4pvc4chijhh74cgiihfa4chdff402bfijhfa06fdhi734bfiif5017cdfhc704cijica4bffihf717fijica4affggf74bfhjhca08cffff74bhhhe404gffffi704efff734gfffff717ffffca4ggfif402bhhhhca4fffhf734cjhhf404fffiic74cjggi7306bfiib705ggffca19ffhhc719fffjia4cjhff502cjgfhca4cifffa34cfeffda",
+		cactusSide: "0g0gk000006w001k8hk02a3gmw02a3i7s02aeqrc02apzaw02b17ug02bcge002bchyw02bnoxk02bnqig02byz2002ca7lk02clg5404k6yns04ki77c04ki8s804ktfqw04kthbs04l4pvc4chijhh74cgiihfa4chdff402bfijhfa06fdhi734bfiif5017cdfhc704cijica4bffihf717fijica4affggf74bfhjhca08cffff74bhhhe404gffffi704efff734gfffff717ffffca4ggfif402bhhhhca4fffhf734cjhhf404fffiic74cjggi7306bfiib705ggffca19ffhhc719fffjia4cjhff502cjgfhca4cifffa34cfeffda"
 	}
 
 	let blockData = [
@@ -458,6 +461,9 @@ function MineKhan() {
 			name: "darkOakLog",
 			textures: [ "darkOakLogTop", "darkOakLogSide" ],
 		},
+		{ name: "mobspawner",transparent: true,shadow: false,
+		textures: [ "mobspawnerside", "mobspawnerside" ],
+		},
 		{ name: "junglePlanks" },
 		{
 			name: "jungleLog",
@@ -469,8 +475,8 @@ function MineKhan() {
 			textures: [ "spruceLogTop", "spruceLogSide" ],
 		},
 		{
-			name: "cactus",
-			textures: ["cactusstop", "cactusSide"]
+			name: "chest",
+			textures: [ "chesttop", "chestside"],
 		},
 		{ name: "whiteWool" },
 		{ name: "orangeWool" },
@@ -527,6 +533,10 @@ function MineKhan() {
 			name: "chiseledQuartzBlock",
 			textures: ["chiseledQuartzBlock", "chiseledQuartzBlockTop"]
 		},
+		{
+			name: "cactus",
+			textures: ["cactusstop", "cactusSide"]
+		},
 		{ name: "chiseledStoneBricks" },
 		{ name: "smoothStone" },
 		{ name: "andesite" },
@@ -535,8 +545,7 @@ function MineKhan() {
 		{ name: "polishedDiorite" },
 		{ name: "granite" },
 		{ name: "polishedGranite" },
-		{ name: "Water",transparent: true,shadow: false,
-    },
+		{ name: "Water",transparent: true,shadow: false,},
 		// { // I swear, if y'all don't stop asking about TNT every 5 minutes!
 		// 	 name: "tnt",
 		// 	 textures: ["tntBottom", "tntTop", "tntSides"]
@@ -2424,30 +2433,23 @@ let drawScreens = {
 		let pzz = roundBits(p.z + p.w - z)
 		let minX, minY, minZ, maxX, maxY, maxZ, min, max
 		if(block == blockIds.Water) {
-			p.jumpSpeed = 0.3;
-			p.gravityStength = -0.03;
+			p.jumpSpeed = 0.135;
+			p.gravityStength = -0.01;
 			liquid = true
 			r = 255
 			return false;
+			
 		}
-
-		if(block == blockIds.Water ) {
-			p.jumpSpeed = 0.3;
-			p.gravityStength = -0.03;
-
-			return false;
-		}
-
-		else{
+		else if(block == blockIds.air) {
 			liquid = false
 			p.jumpSpeed = 0.3;
-			p.gravityStength = -0.031;
+			p.gravityStength = -0.032;
+		}
+		else{
+			liquid = false;
+				p.jumpSpeed = 0.3;
+			p.gravityStength = -0.032;
 			}
-			if (block == !blockIds.Water){
-			p.jumpSpeed = 0.3;
-			p.gravityStength = -0.031;
-			}
-
 		//Top and bottom faces
 		let faces = verts[0]
 		if (vy <= 0) {
@@ -3247,7 +3249,6 @@ let drawScreens = {
 					if (world.getBlock(x, y, z) === blockIds.dirt && world.getBlock(x, y + 1, z) === blockIds.air) {
 						world.setBlock(x, y, z, blockIds.grass, false)
 					}
-
 				}
 			}
 		}
@@ -3363,12 +3364,12 @@ populate() {
 					ground = this.tops[k * 16 + i]
 					gen = superflat ? 4 : Math.round(noise((trueX + i) * smoothness, (trueZ + k) * smoothness) * hilliness) + generator.extra
 					biome = superflat ? 0 : Math.round(noise((trueX + i) * biomeSmooth, (trueZ + k) * biomeSmooth));
-if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass) {
 
 
+	if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass && biome < 0.5) {
 						top = ground + Math.floor(4.5 + random(2.5))
 						rand = Math.floor(random(4096))
-						let tree = random() < 0.6 ? blockIds.oakLog : ++top && blockIds.birchLog
+						let tree = random() < 0.6 ? randomtree : ++top && blockIds.spruceLog
 
 						//Center
 						for (let j = ground + 1; j <= top; j++) {
@@ -3529,7 +3530,7 @@ if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass)
 					        }
 					    }
 					}
-					this.setBlock(6, y-2, 6, blockIds.coalBlock);
+					this.setBlock(6, y-2, 6, blockIds.mobspawner);
 				}
 			}
 		}
@@ -3723,8 +3724,8 @@ genChunk(chunk) {
 				    gen = 59;
 				    chunk.setBlock(i, gen, k, blockIds.Water);
 				    chunk.setBlock(i, gen - 1, k, blockIds.Water);
-				    chunk.setBlock(i, gen - 2, k, blockIds.gravel);
-				    chunk.setBlock(i, gen - 3, k, blockIds.gravel);
+				    chunk.setBlock(i, gen - 2, k, blockIds.sand);
+				    chunk.setBlock(i, gen - 3, k, blockIds.sand);
 				}
 			if(gen>120){
 			    chunk.setBlock(i, gen, k, blockIds.stone);
@@ -3744,14 +3745,10 @@ genChunk(chunk) {
 			chunk.setBlock(i, gen - 3, k, blockIds.dirt);
         		if(gen<60 && !superflat) {
 				    gen = 59;
-
 				    chunk.setBlock(i, gen, k, blockIds.Water);
 				    chunk.setBlock(i, gen - 1, k, blockIds.Water);
 				    chunk.setBlock(i, gen - 2, k, blockIds.gravel);
 				    chunk.setBlock(i, gen - 3, k, blockIds.gravel);
-					if (world.getBlock(i, gen, k) === blockIds.Water && world.getBlock(i, gen + 1, k) === blockIds.air) {
-						world.setBlock(i, gen, k, blockIds.Water, false)
-					}
 				}
 		    }
 		    
@@ -4490,7 +4487,7 @@ genChunk(chunk) {
 			}
 			return superflat
 		})
-		Button.add(width / 2, 285, 300, 40, "Game Mode: Survival", "creation menu", nothing, always, "Fully Coming Soon\n\nAfter the og maker took too long to make this ( i dont mind, i had a lot of fun making this) we have made our Own!, there is many thing that needs to, like an inventory system, or item drop, or mobs, ETC, but here is a beta!")
+		Button.add(width / 2, 285, 300, 40, "Game Mode: Creative", "creation menu", nothing, always, "Fully Coming Soon\n\nAfter the og maker took too long to make this ( i dont mind, i had a lot of fun making this) we have made our Own!, there is many thing that needs to, like an inventory system, or item drop, or mobs, ETC, but a beta Is Coming!")
 		Button.add(width / 2, 335, 300, 40, "Difficulty: Peaceful", "creation menu", nothing, always, "Coming soon\n\nWe are working on it, but its lower on the list due to the possible difficulty.")
 		Button.add(width / 2, height - 90, 300, 40, "Create New World", "creation menu", r => {
 			world = new World()
@@ -4620,7 +4617,7 @@ genChunk(chunk) {
 		Button.add(width / 2, 395, width / 3, 40, "¯\\_(ツ)_/¯", "multiplayer menu", r => changeScene("main menu"))
 
 		// Settings Sliders
-		Slider.add(width/2, 245, width / 3, 40, "options", "Render Distance", 1, 62, "renderDistance", val => settings.renderDistance = Math.round(val))
+		Slider.add(width/2, 245, width / 3, 40, "options", "Render Distance", 1, 64, "renderDistance", val => settings.renderDistance = Math.round(val))
 		Slider.add(width/2, 305, width / 3, 40, "options", "FOV", 30, 110, "fov", val => {
 			p.FOV(val)
 			if (world) {
@@ -4791,11 +4788,10 @@ genChunk(chunk) {
 		}
 		ctx.stroke()
 
-        let heart = document.getElementById('heartimg');
+         let heart = document.getElementById('heartimg');
         for(let i = 0;i < Math.floor(p.health/2);i++) {
-            ctx.drawImage(heart, width / 2 - i*20, height / 2 + 280, 15, 15);
+            ctx.drawImage(heart, 150+i*16, height-80, 15, 15);
         }
-
 		ctx.strokeStyle = "white"
 		ctx.lineWidth = 2
 		ctx.beginPath()
@@ -5059,9 +5055,9 @@ genChunk(chunk) {
 				updateHUD = true
 			}
 
-			if (k === " " && liquid == true) {
-				if (Date.now() > p.lastJump) {
-					p.velocity.y += p.jumpSpeed - 0.1;
+			if (k === " " && !p.spectator) {
+				if (Date.now() < p.lastJump + 400) {
+					p.flying ^= true
 				} else {
 					p.lastJump = Date.now()
 				}
@@ -5081,7 +5077,7 @@ genChunk(chunk) {
 				p.bottomH = 1.32
 			}
 
-			if (k === "") {
+			if (k === "l") {
 				p.spectator = !p.spectator
 				p.flying = true
 				p.onGround = false
@@ -5563,7 +5559,7 @@ genChunk(chunk) {
 	(function() {
 		function title() {
 			let title = "MINEKHAN"
-			let subtext = "JAVASCRIPT EDITION WARNING: BUGS"
+			let subtext = "JAVASCRIPT EDITION"
 			let font = "VT323,monospace"
 			strokeWeight(1)
 			ctx.textAlign = 'center'
