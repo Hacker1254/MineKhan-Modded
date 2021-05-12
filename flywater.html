@@ -1,9 +1,137 @@
 <!DOCTYPE html>
+<!-- @MineKhan version Beta 0.8.1
+
+We've passed Alpha, and moved to Beta 0.8.1! New additions: lanterns, torches, doors, plants, ladders, new textures, splash text, and in the near future, slime blocks and climbable blocks.
+
+Maybe redstone, too! Or mobs?
+
+Slime blocks added! Lava, water, and cobwebs to follow
+
+
+
+Oops, Beta broke, so back to Alpha it is!
+
+OK, Beta un-broke
+
+
+KEY TO THE BLOCK SYMBOLS:
+
+Normal is, well, normal blocks
+
+Slab is slabs
+
+Stair is (do I even have to say it?) stairs
+
+The block with no top is flowers
+
+The block with one side is doors
+
+The short block with one side is torches
+
+The overly dark block is a placed-down lantern
+
+The extremely bright block is a hanging lantern
+
+The extremely bright block with one side is ladders.
+
+END KEY
+
+New key presses! F to pick block, X to zoom out, and N to flip FOV.
+
+
+
+i ironed out some bugs
+
+RedMonster helped me a lot
+He makes, I implement and debug
+https://www.khanacademy.org/profile/monsterred
+
+I took the nether blocks from Electric Dolphin ⚡️🐬 (Turtela)'s Nether Blocks program (https://www.khanacademy.org/computer-programming/nether-blocks/5926649127059456).
+
+I added a respawn anchor (texture manipulation), xray block, and a completely transparent dark block.
+
+	NOTE:
+The "Save" button saves your world to your local browser. Nobody else can see it. However, if you're on a public or shared computer, that save may be deleted unexpectedly. So it's a good idea to keep a safe copy of your save string somewhere where it won't be deleted.
+
+To share your save with other people, copy your world string into the "loadString" variable on line 189.
+
+	Controls:
+
+ * Right-click (or ctrl + left-click): place block
+ * Left-click: Remove block
+ * Middle-click: Pick block
+ * Q: Sprint
+ * Shift: Sneak
+ * W: Walk forward
+ * S: Walk backward
+ * A: Walk left
+ * D: Walk right
+ * E: Open inventory
+ * B: Toggle super Breaker
+ * Z: Zoom
+ * L: Toggle Spectator mode
+ * Enter: Toggle slab/stair mode
+ * Arrow Keys: look around
+ * P or Esc: pause/unpause
+ * 1-9 navigate hotbar
+ * Spacebar: jump
+ * Double jump: toggle flight
+ * Shift (flying): fly down
+ * Space (flying): fly up
+ * T: Reload textures
+ * ; (semicolon): Release the pointer without pausing (for screenshots)
+
+	Notes and accreditation:
+ * This program (MineKhan) was made by Willard (me). The original is https://www.khanacademy.org/cs/mc/5647155001376768 (just adding this so that spin-offs have it)
+ * Zushah helped me with some of the menus in the 0.6 update via GitHub. https://www.khanacademy.org/profile/zushah77
+ * Element118 helped speed up the process of adding new textures significantly. https://www.khanacademy.org/profile/element118
+ * Danielkshin made the current main menu background. https://www.khanacademy.org/profile/danielkshin
+
+ * This program originated as a spin-off of ScusCraft by ScusX.
+ * It's 99% different code at this point, but I still never would have made it this far without his code for reference.
+ * ScusCraft can be found here: https://www.khanacademy.org/computer-programming/scuscraft-3d/5145400332058624
+ * My original spin-off can be found here: https://www.khanacademy.org/computer-programming/high-performance-minecraft/5330738124357632
+ * While porting the code from PJS to a webpage, I copied the PJS source code for a few of their helper functions from here: https://raw.githubusercontent.com/Khan/processing-js/master/processing.js
+ * The textures are 100% copied from real Minecraft, and are the property of Mojang and Microsoft with whom I have no association.
+ * The real Minecraft game can be bought and downloaded at https://www.minecraft.net/en-us/
+
+
+ * Chunks are kept in memory until you restart. So don't explore too far or memory usage will grow until it crashes unrecoverably.
+
+
+	To-Do:
+ * A lot. Check out the GitHub repo if you'd like to collaborate on this. Must use Discord.
+ * https://github.com/Willard21/MineKhan
+
+
+	How it works:
+
+The graphics in this project are done using WebGL, which is a web implementation of OpenGL ES 2.
+It allows us to write shader programs that run right on the GPU, which means it can run as fast as any C++ game.
+The infamous P3D mode in Processing.js uses WebGL behind the scenes, but it does it so inefficiently that it might as well not even being using the GPU.
+
+To properly utilize WebGL like this program does, you need to make efficient use of Vertext Buffer Objects (VBOs).
+A VBO is an array that contains a whole bunch of vertices. Since WebGL can only render triangles and lines, these vertices are stored in multiples of 3.
+A vertex doesn't only include its world coordinates, though. It also includes its texture coordinates, and any other data you want the shaders to manipulate.
+In my case, every vertex has an X, Y, Z, textureX, textureY, and shadowIntensity. So 6 values for every block vertex in the world.
+
+A program can only draw 1 VBO per draw call. Since the texture data is attached to the vertex data, you can't switch textures between vertices.
+That means you either have to make seperate draw calls for each texture, or only use 1 texture. I do the latter.
+I make a single 256x256 pixel texture, and store each of the 16x16 block textures in a section of that big texture, and store the coordinates to it. This is informally called a "texture atlas".
+Then when I'm preparing my VBO, I send the texture coordinates along with the block coordinates so the shader knows how to map the 256x256 pixel texture onto the 16x16 pixel block face.
+
+I do this once for each chunk in the world, and store those VBOs so I can draw them every frame. If a block is edited in a chunk, then that VBO is replaced.
+Drawing a chunk after the VBO has been created is as simple as binding the buffer and calling "gl.drawArrays" once per chunk. The GPU takes care of the rest.
+
+I also use what's called Vertex Array Objects (VAOs) to re-use shared vertices. Since the GPU expects triangles, and I want to draw squares, I need to draw 2 triangles (6 vertices) per square.
+That means 2 of them are being re-used. The VAO lets me tell the GPU to use the cached vertex data instead of looking for a new one, which offers a small inprovement to GPU performance.
+This isn't entirely necessary, but it's considered best practice. Some OpenGL ES implementations require it, but WebGL 1 does not. I think WebGL 2 does, but that's not as well supported.
+-->
 
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Beta Survival!</title>
+		<title>MineKhan Beta: Lanterns, Torches, Doors, Plants, and Textures</title>
 		<link id="vtfont" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 	</head>
 	<style>
@@ -88,12 +216,6 @@
 			text-align: center;
 			color: white;
 		}
-		.center {
-        margin: auto;
-        width: 60%;
-        border: 3px solid #73AD21;
-        padding: 10px;
-        }
 	</style>
 	<body>
 	<canvas id="overlay" tabindex="0" width="600" height="600" style="position: absolute; top: 0px; left: 0px"></canvas>
@@ -107,8 +229,6 @@
 		var loadString = "Your Code Here";<br>
 		Then save the program as a Spin-off.
 	</p>
-		<p id="message" hidden="true" style="position: absolute; top: 10px; right: 10px; z-index: 1; text-align: right; background-color: rgba(255, 255, 255, 0.3);"></p>
-	<img src='data:image/png;base64,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' style='display:none' id='heartimg'>
 	<div class="world-select hidden" id="worlds"></div>
 	<p id="message" class="hidden" style="position: absolute; top: 10px; right: 10px; z-index: 1; text-align: right; background-color: rgba(255, 255, 255, 0.3);"></p>
 	<script>
@@ -209,8 +329,13 @@ document.getElementsByClassName("_1chbfei")[0].setAttribute('style', 'max-width:
 */
 var MathGlob = Math
 function MineKhan() {
+    
+    //If you want to set your seed, type it here
+    
+    let seedInput = undefined
+    
+    
 	let Math = MathGlob
-	let liquid = false
 	let setPixel, getPixels
 	let textures = {
 		grassTop: function(n) {
@@ -274,18 +399,6 @@ function MineKhan() {
 			for (let x = 0; x < 16; x++) {
 				for (let y = 0; y < 16; y++) {
 					setPixel(n, x, y, 0, 0, 0, 255)
-				}
-			}
-		},
-		Water: function(n) {
-			let r = 0, g = 0, b = 0, a = 0;
-			for (let x = 0; x < 16; x++) {
-				for (let y = 0; y < 16; y++) {
-				    a = 200;
-					r = 0;
-					g = 0;
-					b = random(200, 255);
-					setPixel(n, x, y, r, g, b, a);
 				}
 			}
 		},
@@ -389,12 +502,52 @@ function MineKhan() {
 		polishedAndesite: "0g0g90oilzi70sz23gf0v7a3270yjgjcv10ru60v11vyakf11w3ugv19okmwv1e4v30f7878888888788785843334442443134084444443376644307416763343446440844442456433334083344333424433318444634666554320833433332123444184562444466776608434433443344540844667633366444081444444664466208466654333134760844433334465334083333664444334406100000000110000",
 		polishedDiorite: "0g0g80qqu0ov0xfi5tr11vy6m71asubcv1f94t1b1jpkttr1o60w731ri7bpb7776677777666774764556657643564166764466577434506565333565454441675334576435457176544567733456607566767655346450744765756564534063556655467534516566544565544761664334655465666075673555775644517557654375466340745654576435744072445566545654512101110001100110",
 		polishedGranite: "0g0g90l56fi70plgu0v0yhw0sf1424tmn17eb8cf1aqna4f1e3al8f1e3x7un1jnje2n8888786866866565843344345444334374744554442446418444243334553342844444453344443262343344443734428345543644444431844444423445544263422344554433636444433443344442734444444464334284473344244442318455444445543341633443264434455264443444334447412111001110111100",
-		cactusstop: "0g0gp000006w000b8qg000mha0000xptk0018yd40018zy0001k8hk001vh140026pko02a3gmw02a3i7s02aep6g02aeqrc02apzaw02b17ug02bcge002bnoxk02bnqig02byz2002ca7lk04k6yns04ki77c04ktfqw04kthbs04l4pvchh32bd40fhh628hhhlefjjgdnllihkkh3ekmnlg5imlccklh2fnllnjajmleellhbkleelmjmmnllmh7djlddjmmjfjnnle34gmmmonmj5fmmmle0djikonmnjlnkij4flj77jlilmmja5e0hmmhilf3ilmmihjd3flllljfkjlkkmlh7hlnllmnj9fddlj6hmmlgennj9fddlj6hkmld9jnoillkljhhdglkfdjldilhcehh23dhc2f60ch717h",
-		cactusSide: "0g0gk000006w001k8hk02a3gmw02a3i7s02aeqrc02apzaw02b17ug02bcge002bchyw02bnoxk02bnqig02byz2002ca7lk02clg5404k6yns04ki77c04ki8s804ktfqw04kthbs04l4pvc4chijhh74cgiihfa4chdff402bfijhfa06fdhi734bfiif5017cdfhc704cijica4bffihf717fijica4affggf74bfhjhca08cffff74bhhhe404gffffi704efff734gfffff717ffffca4ggfif402bhhhhca4fffhf734cjhhf404fffiic74cjggi7306bfiib705ggffca19ffhhc719fffjia4cjhff502cjgfhca4cifffa34cfeffda",
 		flowerOftheValley: "0g0g800000000ekeqdb0mcq0hr0qtshkv0ym3u2n1o60w731smgykf1y711j30000000000000000000000000000000000000000000000000000000000000000000443000000000000760020000000000075020200000000000076020002000000657541002300000065000210330000000000011243000000000001143100000000000123200000000000013210000000000001110000000000000100000000",
 		poppy: "0g0gd000000004jkcu704k17nj04k6txb05oxatb0fjd9mn0iv8e7z0qmx1q712uf5rz13ydk3j1f22ygv1lpt7nj1vpem7z0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000aa000000000000a78ab0000000000bb56990000000000ccb99000000000000b310000000000000004000000000000000400000000000000040000000000003404044000000000030230000000000000313000000",
 		dandelion: "0g0g70000000017p88v03h660v143zt331e5azun1ktyynz1uuywvz0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000560646000000000005563000000000006643350000000000002200000000000000212100000000001221100000000000012100000000000000210000000",
 		TallGrass: "0g0gb000000008yx1q70a36olb0b7lwxr0b7rj7j0cbpwqn0cbvj0f0cc15a70dfzjlr0ekke7z0gtkhz3000008000000000000000a000005000000a00300a050000100310330301030a1a033031030130033910303103133a030a10303101310a030991313331310301009131330333338300910113310113130091010141013313001901014101331000119131719131300069913175913132002219215151111202921211212221210",
+		obsidian: "0g0gs000007300000zj013yein013yfb301442db0282fwf0282gov03c6i2n03chp1b04gainz04gajgf04gg2kf05kehof05kk4qn07smkfz08wl0cf0a0p0xr0a0p1q70a0uk1r0b4nf9b0dd12pr0egtvjz0eh53b30fks9330fks9vj0fksanz0hth5330ix9xxbc8888cec8rkcdmrq30370740l955gl9d00nog03gj970ag0c0ph99h39370047380h9990000003330c9990093336og33089939hpph31g0300c309p990900002og800ph999hh301g99eh90093hh9307473c933033393300731m093390393pog999e3pp90999ho749o7cgh734317774331fc0g3473g54770300cec8e8cemebccccci",
+		portal: "0g0gu0dbgv7j0dbgvzz0dbgwsf0dbgxkv0dbgydb0dbgz5r0dbgzy70dbh0qn0dbh1j30eff7y70eff8qn0efffun0effgn30fjdu670fjduyn0fjdvr30gnc9a70gnca2n0hranlr0hraoe70iv92pr0jz7h1b0l35vcv0m748vz0m749of0nb2n7j0of11j30pizfun0qn3fnj0qn3gfzjpked8bed36jh512kjjk5a8ci77h53656dj318mfpheof3ab1b418pl4662eqe014418mk311821dme1h8cpj4a67ef13crglbil3a5hkfoe12hkb1bb5677tjhrg248e47b54348bml724im8hm41322bdjh8dob46pn4a686cpj44bb616mo76bdqk3abfhq725pmccqm51bqjcor6a6lhgl43ctlbcbqm4187769bsj686ljgd8hhe88mh426",
+		xray: "0g0g70wb8hdr0yjgikf12zwkxr17gcnb318kgnwf1asop331d0wq9r1011002200220121054556666553445204334454444555501666455566655442255444545666645006555555554343412556664665545550243343443434466116656545555455620555554566656661054544334454454215555666665566622444566454433452165445556555455104456665566544401022112221000121",
+		
+		warpedDoorTop: "0g0gc04i0ge707u6vwf07uz2f3092ophb0a5jpj30a60p330b7xmv30cb3t330fodrlr0fouosf0k1jhmn0pmetxb3353533535353338588828883662488653362665666264539775445768827227b867476768628882a886566288629992988328829962999683362997998298839667299698827537576629968862577636882998633276643888288654636646389929936772356298992993772227727899288576139912b898286466098607",
+    warpedDoorBottom: "0g0gb04i0ge707uz2f3092ophb0a5jpj30a60p330b7xmv30cb3t330fodrlr0fouosf0k1jhmn0pmetxb9724153655100061825533667751157125551676885158812577177688515886278815568851577647881776775122754775188677625547854418865521611642752576564155757566255566315775a65512256311624695551114316125648777166165514655487717757534657148881775735157715115151115616111",
+    spruceDoorTop: "0g0gc0ehg7wf0gpo9330l50ohr0nd8pof0ohnzlr0rtudj30sxyewv0sywflr0u30g730xe36db0zm5jpb16anym7bab4bb4bb4bb4bb4aaa39a3a939a4962ba94aa3a649a4962ba94a6356469469201741741741741728564563564563562b6a36a4aa36a4952b6a36946a36a3a52b6a3994563963a62b993964564953962a963994653a53992ba54a93653a64692ba64a64a54a945a2ba94a63a64a945929aa4653aa4aa35620173173174173172",
+    spruceDoorBottom: "0g0gh0ehg7wf0gpo9330l50ohr0nd8pof0ohnzlr0rtudj30sxyewv0sywflr0u30g730xe36db0xfchz30zm5jpb10rojr312zwkxr16anym717gcnb318kgnwf85645645645gd562b6b3b635b3g53db2e6949635b4fb3ab2e6b46936b45ca5b2e6b4b94994653b62e6b4b93b64963b62b9639b4b639b4662b9636b4b53b93652eb635b49536539529b6356465455395201731741731731728564563563564562e9b4bb45649b4bb2e9b4bb35b49b4b92b994bb36b4993b622553553554553552",
+    oakDoorTop: "0g0gb00000000m9fzzz0ru00lb0sz251b0u30g730yicsfz0znvvnj156v7cv19n5mnz1e3g0e71f7pou7a88aaaa8aaaa8aa78777777777777772a712222712222772a720000820000871672000092000097547200008200008728758998858998872a712222712222771a7200008200008758720000920000972a720000820000872a758998858998871a788875588875575a71222271222277287277778277663726525555825531551",
+    oakDoorBottom: "0g0g90m9fzzz0ru00lb0sz251b0yicsfz0znvvnj156v7cv19n5mnz1e3g0e71f7pou72515533715500753653677763677765165665533555335518501111501111650851555561555565385155537155537518515533715533751853677763677763065666533566533338501111531111651451555561555565125155537155537506515533715533753653677763677763183356653356653311000000000000000",
+    jungleDoorTop: "0g0ge00000000ddc7b30ehg7wf0k20av30sxhjb30sywflr0u30g730xdxk3j156edbz18ikr9b1buwttr1f738jj1hfgvzz1lw2kn3ccddddccdddddcc4c8abb8bbbb8bba94d9bb97877879bba7dbba87700448abb72bb8708008078bb76b8700d00d007bb7dab700d00d007bb7d8a700b00c007a84c777cdbcdbcd7444dccc99777799ccc8c9bba800008abaa4c9bb87b00c8ab9b4cabb97accb8abab7db9b97aaaa8abba7db7ba78aab7531a72b8ba8bbbb718aa4",
+    jungleDoorBottom: "0g0ga0ehg7wf0sxhjb30u30g730xdxk3j156edbz18ikr9b1buwttr1f738jj1hfgvzz1lw2kn32777647777147741967664777714775186665466661577618666634444367763856763888847777384776167654665738477516775366463947751777635656394774175763477610467436476147751255554637715555193113455764431318477434776467743875761477515757395455155543554539333111333311133",
+    ironDoorTop: "0g0gc00000000hts9of0l64bgf0znkj5r18kgnwf19okohr1d0wq9r1gd8s1r1ktj7cv1lxsv0f1o60w731ricxz3a99aaaa9aaaa9aa89888888888888884a846666846666884a8600009600009842860000b60000b8438600009600009849879bb9979bb9984a846666846666884a8600009600009849860000b60000b84a860000960000984a879bb9979bb9984a899987799987784a84666684666688498688889688133842767777967714775",
+    ironDoorBottom: "0g0ga0c986pr0hts9of18kgnwf19okohr1d0wq9r1gd8s1r1ktj7cv1lxsv0f1o60w731ricxz30646655946644962765799975799976276776655666556628624444624444762864666674666676286466659466659628646655946655962865799975799975276777655677655538624444654444762164666674666676306466659466659627646655946655962765799975799975385567765567765234233333333333333",
+    darkOakDoorTop: "0g0gf0b4hji70dcpj3z0egnxfj0ehg7wf0govx1b0hsuakf0k12ayn0m94p330ohiewv0qpf4e70u30g730v5jv2719mocu71krh2bj1y61y4f88888888888888828776667777776664875000077500006486044496704449643604549670454964a7045596704559748705559670555964870565b660565b74870666b560666b74870666b560666b64860667b760667b64860677b760677b64861777b761777b64861777b661777b7486199b967199b97436676677776edc74",
+    darkOakDoorBottom: "0g0gc0b4hji70dcpj3z0ehg7wf0govx1b0hsuakf0k12ayn0m94p330ohiewv0qpf4e70u30g730v5jv271krh2bj95666666665b556375400005640000637503338560333863750343856034386375034485603448537604448550444853760454a550454a53750555a550555a53750555a650555a63750556a650556a63250566a660566a53951666a661666a53751666a561666a5376188a855188a85375555555665655536111111111111113",
+    crimsonDoorTop: "0g0ga0iwhlvj0k0lmgv0m9g6bj0pkufb30swv7r30sy9wxr0ygss1r10ov667140vym71bsvx1b6998899988989984844434444443444396473646464364739676367776737764533333333333333128887888888888848677667777677773967766777747777396663467764664449444334433333333611111111111111183331333333133319443144434314431964414644443444176663666461886135766366666086403",
+    crimsonDoorBottom: "0g0ga0iwhlvj0k0lmgv0m9g6bj0pkufb30swv7r30sy9wxr0ygss1r10ov667140vym71bsvx1b2777367667400033878737867761666387883887876166838888388888718881033333333333333198887888888888869777667777677774877766777747777477663467764664443444334433333333511111111111111124441434443134439644364466434463976637687763677377873788787387836343134443313131",
+    birchDoorTop: "0g0ge0iwyb5r0ohcphb17fk83j19nxurj1f8hwxr1n14cfz1n1fmkf1o5pclb1qdxekf1tq9lvj1tqf9q71vyn9bz1y6po8v1y6vain677777777777777675566665556665537542222233333453752bbbabbabbb853052bbbabbabbb8531529999aa9999863762bc9cccc9cb763762cc9cbbc9cc763763999baab999863763ccabaabacc863763cdacaacadc86376399a9999a99863753bb9cbbc9bb863753bb9cbbc9bb752763ab9cbbc9ba702063ab9cbbc9ba712",
+    birchDoorBottom: "0g0ge0iwyb5r0ohcphb17fk83j19nxurj1f8hwxr1josanz1n14cfz1n1fmkf1o5pclb1qdxekf1tq9lvj1tqf9q71vyn9bz1y6po8v173bbaddddabb852873aaaaaaaaaa972873dccdaadccd972873dbbcaacbbd972874999998899995286567557577575628557555756755673856756576675667385775767756576738677677775667773077667677557777317765757675776728775575657567662867566555755756285667656565565525222222222222223",
+    acaciaDoorTop: "0g0ge00000000ehg7wf0ma8c1r0u0yyv30u30g730v74gsf0zlddz3155rt3317du7zz1btnojj1cxgglb1f5itxb1ii651b1jma5mndcccddddddccccc6ca999bb99bb99998da33673367336798da300c300c300c961a600c600c300c964a600c700c600cb6ba700c700c700cb6ba700d600d700db6da600d600d600db6da700d600d600d93db700d700d700d93cb700d700d700db3db600d700d700db6db600d700d600db3c9700d700d700db619acddacddac1256",
+    acaciaDoorBottom: "0g0gc00000000ehg7wf0neccn30u0yyv30u30g730zlddz3155rt331btnojj1cxgglb1f5itxb1ii651b1jma5mn473356335633562599300a300a30076599300a300a300975a9500a500a500a75b9600a600a600a93b7500b500b600b93b7600b500b600b93b9600b500b600b93b9600b600b600b95a9600b600b500b9517600b600b500b7647500b500b500b7697600b600b600b75998abb8abb8abb75a9997779997777755633335555556665",
+    soulLantern: "0g0gb0000000005sq9r07z7enz08x7i7z0a7fgn30gptzb30hu3nr30iy7p4v0u80yyn1inns3j1vyyo730577500000000000075570000007550057777500000503005144150000050300728827000003530078a9870000000000789a870000050300528825000003530057777500000000005566550000000000567765000007550067777600000503006777760000000000567765000000000055665500000000000000000000000000",
+    lantern: "0g0gc000000008x7i7z0gptzb30hu3nr30iy7p4v0zkwgsf12xjrwf1ihjf9b1uqx79b1x10sfz1y70fen1y70tmn0244200000000000065560000004220024444200000201005788750000020100689986000001210069ba96000000000069ab960000020100589985000001210024444200000000002233220000000000234432000004220034444300000201003444430000000000234432000000000022332200000000000000000000000000",
+    torch: "0g0gd00000000egz6rj0fl37cv0gp77y70htb8jj0ndpnnj0u22fi7156v85b17f3a4f1y2mc5b1y5l3b31y70gzj1y711j30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a900000000000000bc000000000000008600000000000000750000000000000084000000000000008500000000000000750000000000000063000000000000008200000000000000610000000",
+    soulTorch: "0g0gd0000000006fbb30dkjoxr0egz6rj0fl37cv0gp77y70htb8jj0ndpnnj0u22fi70xkd0qn156v85b17f3a4f1y711j3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000021000000000000009c00000000000000b800000000000000a700000000000000b600000000000000b700000000000000a7000000000000008500000000000000b400000000000000830000000",
+    ladder: "0g0g700000000fl385b0m9fzzz0ru00lb0yicsfz156v7cv1e3g0e70052000000005200046456566665646003432333333243300021000000002100005200000000520006645666565564600343233333324330002100000000210000520000000052000664566666656440034323333332433000210000000021000052000000005200066456566665646003432333333243300021000000002100",
+    slime: "0g0g50olklv80qty9bo0va8r040xigqlw0ximegk2213321122213342244444223222220434321221112321231421013222222121241002221200212223211122340122222321222233222122231210222222213223120022222220322212223222011232122122222111232112322222221003213224322021101342300112111222334240123333444444422432221122222122",
+    water: "0g0g504gh19w05kfflg05kl1v806ojfec07snfzo1111000111111323000011111100000011000000111111001000111111111111001110000100011100101111111110001111111111113341323111111111111144313431111111130000000000000100100001000111111100000000000000010000000000010000100001111111101000000001114421101111344111111111",
+    cobweb: "0g0g400000001ils45b1riil1b1y711j31000000030000001030000123210003000213100300303000002000310002000000130310202030000100203002000200020103203020010122323332000300101003002332212310010012301003002003002030030302000020302013300100001201210002100003003200012320003000012210000301000003000000001",
+    respawnAnchorTop1: "0g0gl000007307sgwlb08wkzjz09zlp1b09zlptr09zlqm709zlren09zls7309zlszj0b3k7b30b3kf7j0c7imf30c92oe70dbh0qn0dbh1j30efff270gnc7pb0l35s730ndeuwv0qn3ke70ziwirjicaiiiaiiiiiaicic222ccc222cck22ci21111111111112aaj100000000001cii2100000000001cii2100006700001ciic10005dfb0001kaic100677he90012ii210054589g0012iac1000433900012ii2100006800001ciic100000000001ciic100000000001jaa21111111111112ic22k2cc22c2cc22cicijiiiiiaiiiaci",
+        respawnAnchorTop2: "0g0gr000007307sgwlb08wkzjz09zlo8v09zlp1b09zlptr09zlqm709zlren09zls7309zlszj0b3k0zj0b3k7b30b3kf7j0c7iku70c7ilmn0c7imf30c92oe70dbh0qn0dbh1j30efff270fjdtdr0gnc7pb0jz7dvj0l35s730ndeuwv0qn3ke70ziwirjogcooocooooocogog222ggg222ggq22go21111111111112ccp100000000001goo2100053390001goo21006a78ef001goog105a6hjfie01qcog106788nibm012oo21066569blk012ocg1063544bdi012oo21006a797b001goog100087bd0001goog100000000001pcc21111111111112og22q2gg22g2gg22gogopooooocooocgo",
+        respawnAnchorTop3: "0g0gv000007307sgwlb08wkzjz09zlo8v09zlp1b09zlptr09zlqm709zlren09zls7309zlszj0b3k0zj0b3k7b30b3kf7j0c7iku70c7ilmn0c7imf30c92oe70dbgzy70dbh0qn0dbh1j30efff270fjdtdr0gnc7pb0hral8f0hram0v0iv90cf0jz7dvj0l35s730ndeuwv0qn3ke70ziwirjsgcssscssssscsgsg222ggg222ggu22gs21111111111112cct1000l6770001gss210mk5339e301gss210j6a78efo01gssg1b5a6ikfje31ucsg1b6788rjbqh12ss21m66569bml812scg1o63544bdji12ss210n6a797bo01gssg10mo87bdpk01gssg1000mbbp0001tcc21111111111112sg22u2gg22g2gg22gsgstssssscssscgs",
+        respawnAnchorTop: "0g0gv07sgwlb08wkzjz09zlo8v09zlp1b09zlptr09zlqm709zlren09zls7309zlszj0b3k0zj0b3k7b30b3kf7j0c7iku70c7ilmn0c7imf30c7ipkv0c92oe70dbgzy70dbh0qn0dbh1j30efff270fjdtdr0gnc7pb0hral8f0hram0v0iv90cf0jz7dvj0l35s730ndeuwv0qn3ke70ziwirjsgbsssbsssssbsgsg111ggg111ggu11gs10000000000001bbt028ol5663dp0gss108mk4228d2c0gss10oj5967deo40gssg0a495ikejd20ubsg0a5677rjaqh01ss10m55458aml701sbg0o52433acji01ss106n59686aoj0gssg03mo76acpk40gssg065omaapf520tbb10000000000001sg11u1gg11g1gg11gsgstsssssbsssbgs",
+        respawnAnchorTopOff: "0g0g8013yfb307sgwlb08wkzjz0b3kf7j0c92oe70ndeuwv0qn3ke70ziwirj5435553555553545422244422244722452111111111111233610000000000145521000000000014552100000000001455410000000000173541000000000012552100000000001253410000000000125521000000000014554100000000001455410000000000163321111111111112542272442242442245456555553555345",
+        respawnAnchorSide3: "0g0gh0000073013yfb304gainz07sgwlb08wkzjz0a0p1q70b3kf7j0c92oe70fksanz0k1dyin0ndeuwv0qn3ke70ziwirj1kqv1tr1x1ncov1y6jzlr1y711j3a9a6aaa99b9a9b9a7469a733337a694744999333333999449499743ed3479949994744egfd44749997144311ed34417911113391d933111197991379973199790047939aa97972226267737777377266266462333320260502162612188522b618820cb658c12b215521c10262bcc051051b21511b20b001210b012526111611",
+        respawnAnchorSide1: "0g0gf0000073013yfb304gainz07sgwlb08wkzjz0a0p1q70b3kf7j0c92oe70fksanz0k1dyin0ndeuwv0qn3ke70ziwirj1x1ncov1y711j3a9a6aaa99b9a9b9a7469a733337a694744999333333999449499743d13479949994744de114474999714431111344179111133911933111197991379973199790047939aa97972226267737777377266266462333320260502162612188522b618820cb658c12b215521c10262bcc051051b21511b20b001210b012526111611",
+        respawnAnchorBottom: "0g0g80000073013yfb304gainz0a0p1q70b3kf7j0fksanz0qn3ke70ziwirj1000412105311353101204405216352100553013322723014532236212701640034244667701116122760211165311406712355410306004102522764006053000534723346032224260276321621264244671141100260302142612155322441552042235612421332161022264403103162131162040012106012324111411",
+        respawnAnchorSide4: "0g0gh0000073013yfb304gainz07sgwlb08wkzjz0a0p1q70b3kf7j0c92oe70fksanz0k1dyin0ndeuwv0qn3ke70ziwirj1kqv1tr1x1ncov1y6jzlr1y711j3a9a6aaa99b9a9b9a7469a733337a694744999333333999449499743ed3479949994744egfd447499971443dfed3441791111339dd933111197991379973199790047939aa97972226267737777377266266462333320260502162612188522b618820cb658c12b215521c10262bcc051051b21511b20b001210b012526111611",
+        respawnAnchorSide2: "0g0gh0000073013yfb304gainz07sgwlb08wkzjz0a0p1q70b3kf7j0c92oe70fksanz0k1dyin0ndeuwv0qn3ke70ziwirj1kqv1tr1x1ncov1y6jzlr1y711j3a9a6aaa99b9a9b9a7469a733337a694744999333333999449499743ed3479949994744egfd4474999714431111344179111133911933111197991379973199790047939aa97972226267737777377266266462333320260502162612188522b618820cb658c12b215521c10262bcc051051b21511b20b001210b012526111611",
+        respawnAnchorSide0: "0g0gd0000073013yfb304gainz07sgwlb08wkzjz0a0p1q70b3kf7j0c92oe70fksanz0k1dyin0ndeuwv0qn3ke70ziwirja9a6aaa99b9a9b9a7469a733337a69474499933333399944949974311347994999474411114474999714431111344179111133911933111197991379973199790047939aa97972226267737777377266266462333320260502162612188522b618820cb658c12b215521c10262bcc051051b21511b20b001210b012526111611",
+    
 	}
 
 	let blockData = [
@@ -472,10 +625,6 @@ function MineKhan() {
 			name: "spruceLog",
 			textures: [ "spruceLogTop", "spruceLogSide" ],
 		},
-		{
-			name: "cactus",
-			textures: ["cactusstop", "cactusSide"]
-		},
 		{ name: "whiteWool" },
 		{ name: "orangeWool" },
 		{ name: "magentaWool" },
@@ -539,9 +688,7 @@ function MineKhan() {
 		{ name: "polishedDiorite" },
 		{ name: "granite" },
 		{ name: "polishedGranite" },
-		{ name: "Water",transparent: true,shadow: false,
-    },
-	{ name: "flowerOftheValley",
+		{ name: "flowerOftheValley",
 		    solid: false,
 		    transparent: true,
 		    shadow: false,
@@ -561,10 +708,171 @@ function MineKhan() {
 		    transparent: true,
 		    shadow: false,
 		},
-		// { // I swear, if y'all don't stop asking about TNT every 5 minutes!
-		// 	 name: "tnt",
-		// 	 textures: ["tntBottom", "tntTop", "tntSides"]
-		// },
+		{ name: "obsidian" },
+		{ name: "portal",
+		    solid: false,
+		    transparent: true,
+		    shadow: false,
+		},
+		{ name: "xray",
+		    solid: false,
+		    shadow: false,
+		    textures: [ "portal", "xray" ],
+		},
+		{ // I swear, if y'all don't stop asking about TNT every 5 minutes!
+		    name: "tnt",
+		 	textures: ["tntBottom", "tntTop", "tntSides"],
+		 	transparent: true
+		},
+		{ name: "hidingBlock",
+		    solid: false,
+		    shadow: false,
+		    transparent: true,
+		    textures: "blackConcrete",
+		},
+		{ name: "oakDoorTop",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "oakDoorBottom",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "spruceDoorTop",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "spruceDoorBottom",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "ironDoorTop",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "ironDoorBottom",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "darkOakDoorTop",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "darkOakDoorBottom",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "birchDoorTop",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "birchDoorBottom",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "jungleDoorTop",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "jungleDoorBottom",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "acaciaDoorTop",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "acaciaDoorBottom",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "warpedDoorTop",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "warpedDoorBottom",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "crimsonDoorTop",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "crimsonDoorBottom",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "soulLantern",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "lantern",
+		    transparent: true,
+		    shadow: false
+		},
+		{ name: "torch",
+		  transparent: true,
+		  shadow: false
+		},
+		{ name: "soulTorch",
+		  transparent: true,
+		  shadow: false
+		},
+		{ name: "ladder",
+		  transparent: true,
+		  shadow: false
+		  //solid: false,
+		},
+		{ name: "slime",
+		  transparent: true,
+		  shadow: false,
+		  solid: true,
+		  boing: true
+		},
+		{ name: "water",
+		  transparent: true,
+		  shadow: false,
+		  solid: false,
+		  halfsolid: true
+		},
+		{ name: "cobweb",
+		  transparent: true,
+		  shadow: false,
+		  solid: false,
+		  halfsolid: true
+		},
+		{ name: "repel",
+		  textures: [ "water", "blueConcrete", "water", "water", "slime", "water" ],
+		  transparent: true,
+		  shadow: false,
+		  solid: false,
+		  repel: true
+		},
+		{ 
+		    name: "RespawnAnchorOff",
+		    textures: ["respawnAnchorBottom", "respawnAnchorTopOff", "respawnAnchorSide0"]
+		    
+		},
+		{ 
+		    name: "RespawnAnchor1",
+		    textures: ["respawnAnchorBottom", "respawnAnchorTop1", "respawnAnchorSide1"]
+		    
+		},
+		{ 
+		    name: "RespawnAnchor2",
+		    textures: ["respawnAnchorBottom", "respawnAnchorTop2", "respawnAnchorSide2"]
+		    
+		},
+		{ 
+		    name: "RespawnAnchor3",
+		    textures: ["respawnAnchorBottom", "respawnAnchorTop3", "respawnAnchorSide3"]
+		    
+		},
+		{ 
+		    name: "RespawnAnchor",
+		    textures: ["respawnAnchorBottom", "respawnAnchorTop", "respawnAnchorSide4"]
+		    
+		},
 	]
 	const BLOCK_COUNT = blockData.length;
 
@@ -573,6 +881,10 @@ function MineKhan() {
 		for (let i = 1; i < BLOCK_COUNT; i++) {
 			let data = blockData[i]
 			data.id = i
+			
+			let name = []
+			
+			name[i] = blockData[i].name
 
 			if (!data.textures) {
 				data.textures = [ data.name, data.name, data.name, data.name, data.name, data.name ]
@@ -595,6 +907,10 @@ function MineKhan() {
 			data.transparent = data.transparent || false
 			data.shadow = data.shadow !== undefined ? data.shadow : true
 			data.solid = data.solid !== undefined ? data.solid : true
+			data.boing = data.boing !== undefined ? data.boing : false
+			data.halfsolid = data.halfsolid !== undefined ? data.halfsolid : false
+			
+			data.repel = data.repel !== undefined ? data.repel : false
 		}
 	})()
 
@@ -602,10 +918,9 @@ function MineKhan() {
 	let doc = document
 	let console = win.console
 	let world
-
 	let seedHash
 	let hash = (function() {
-		let seed = Math.random() * 2100000000 | 0
+		let seed = seedInput !== undefined ? seedInput : Math.random() * Infinity | 0
 		let PRIME32_2 = 1883677709
 		let PRIME32_3 = 2034071983
 		let PRIME32_4 = 668265263
@@ -1053,8 +1368,8 @@ function MineKhan() {
 
 	//globals
 	//{
-	let version = "Alpha 0.7.1 - Modded"
-	let reach = 5 // Max distance player can place or break blocks
+	let version = "Beta 0.8.1"
+	let reach = 10 // Max distance player can place or break blocks
 	let sky = [0.33, 0.54, 0.72] // 0 to 1 RGB color scale
 	let superflat = false
 	let trees = true
@@ -1085,10 +1400,8 @@ function MineKhan() {
 		height: 80, // Height of the hills
 		smooth: 0.01, // Smoothness of the terrain
 		extra: 30, // Extra height added to the world.
-		caveSize: 0.00, // Redefined right above where it's used
-		biomeSmooth: 0.007 // smooth of biomes
-};
-	
+		caveSize: 0.00 // Redefined right above where it's used
+	}
 	let maxHeight = 255
 	let blockOutlines = false
 	let blockFill = true
@@ -1098,6 +1411,11 @@ function MineKhan() {
 	const STAIR    = 0x200 // 10th bit
 	const FLOWER   = 0x300
 	const FLIP     = 0x400 // 11th bit
+	const DOOR     = 0x1900
+    const TORCH    = 0x2000
+    const LANTERN  = 0x2100
+    const HANGING  = 0x2200
+    const LADDER   = 0x2300
 	const NORTH    = 0 // 12th and 13th bits for the 4 directions
 	const SOUTH    = 0x800
 	const EAST     = 0x1000
@@ -1114,20 +1432,18 @@ function MineKhan() {
 	let bigArray = win.bigArray || new Float32Array(600000)
 	win.bigArray = bigArray
 
-
 	// Callback functions for all the screens; will define them further down the page
-let drawScreens = {
-	"main menu": () => {},
-	"options": () => {},
-	"play": () => {},
-	"pause": () => {},
-	"creation menu": () => {},
-	"inventory": () => {},
-	"multiplayer menu": () => {},
-	"comingsoon menu": () => {},
-	"loadsave menu": () => {},
-	"dead": () => {}
-}
+	let drawScreens = {
+		"main menu": () => {},
+		"options": () => {},
+		"play": () => {},
+		"pause": () => {},
+		"creation menu": () => {},
+		"inventory": () => {},
+		"multiplayer menu": () => {},
+		"comingsoon menu": () => {},
+		"loadsave menu": () => {},
+	}
 	let html = {
 		pause: {
 			enter: [window.message],
@@ -1398,12 +1714,12 @@ let drawScreens = {
 				[objectify( 4, 16, 19, 16, 16, 0, 0)]  //west
 			],
 			cull: {
-				top: 3,
-				bottom: 3,
-				north: 0,
-				south: 0,
-				east: 0,
-				west: 0
+				top: 0,
+				bottom: 0,
+				north: 3,
+				south: 3,
+				east: 3,
+				west: 3
 			},
 			texVerts: [],
 			varients: [],
@@ -1433,6 +1749,137 @@ let drawScreens = {
 			size: 10,
 			varients: [],
 			flip: true,
+			rotate: true
+		},
+		door: {
+			verts: [
+				// x, y, z, width, height, textureX, textureY
+				// 0, 0, 0 is the corner on the top left of the texture         // The commented code is for 2-high door placement.
+				[objectify( 0,  0,  0, 16, 3, 0, 0)], //bottom
+				//[objectify( 0, 16, 3, 16, 3, 0, 0),objectify( 0, 32, 3, 16, 3, -16, 0)], //top
+				[objectify( 0, 16, 3, 16, 3, 0, 0)],
+				//[objectify(16, 16, 3, 16, 16, 0, 0),objectify(16, 32, 3, 16, 16, -16, 0)], //north
+				[objectify(16, 16, 3, 16, 16, 0, 0)],
+				//[objectify( 0, 16,  0, 16, 16, 0, 0),objectify( 0, 32,  0, 16, 16, -16, 0)], //south
+				[objectify( 0, 16,  0, 16, 16, 0, 0)],
+				//[objectify(16, 16,  0, 3, 16, 0, 0),objectify(16, 32,  0, 3, 16, -16, 0)], //east
+				[objectify(16, 16,  0, 3, 16, 0, 0)],
+				//[objectify( 0, 16, 3, 3, 16, 0, 0),objectify( 0, 32, 3, 3, 16, -16, 0)]  //west
+				[objectify( 0, 16, 3, 3, 16, 0, 0)]
+			],
+			cull: {
+				top: 3,
+				bottom: 3,
+				north: 3,
+				south: 3,
+				east: 3,
+				west: 3
+			},
+			texVerts: [],
+			varients: [],
+			buffer: null,
+			flip: true,
+			size: 6,
+			rotate: true
+		},
+		torch: {
+			verts: [
+				// x, y, z, width, height, textureX, textureY
+				// 0, 0, 0 is the corner on the top left of the texture
+				[objectify( 7,  0,  7, 2, 2, 7, 14)], //bottom
+				[objectify( 7, 10, 9, 2, 2, 7, 6)], //top
+				[objectify(9, 10, 9, 2, 10, 7, 6)], //north
+				[objectify( 7, 10,  7, 2, 10, 7, 6)], //south
+				[objectify(9, 10,  7, 2, 10, 7, 6)], //east
+				[objectify( 7, 10, 9, 2, 10, 7, 6)]  //west
+			],
+			cull: {
+				top: 0,
+				bottom: 3,
+				north: 0,
+				south: 0,
+				east: 0,
+				west: 0
+			},
+			texVerts: [],
+			varients: [],
+			buffer: null,
+			size: 6,
+			rotate: true
+		},
+		lantern: {
+			verts: [
+				// x, y, z, width, height, textureX, textureY
+				// 0, 0, 0 is the corner on the top left of the texture
+				[objectify(5,  0, 5, 6, 6, 0, 9)], //bottom
+				[objectify(6, 9, 10, 4, 4, 1, 10),objectify(5, 7, 11, 6, 6, 0, 9)], //top
+				[objectify(10, 9, 10, 4, 2, 1, 0),objectify(11, 7, 11, 6, 7, 0, 2),objectify(9.5, 11, 8, 3, 2, 11, 10)], //north
+				[objectify(6, 9, 6, 4, 2, 1, 0),objectify(5, 7, 5, 6, 7, 0, 2),objectify(6.5, 11, 8, 3, 2, 11, 10)], //south
+				[objectify(10, 9, 6, 4, 2, 1, 0),objectify(11, 7, 5, 6, 7, 0, 2)], //east
+				[objectify(6, 9, 10, 4, 2, 1, 0),objectify(5, 7, 11, 6, 7, 0, 2)]  //west
+			],
+			cull: {
+				top: 0,
+				bottom: 0,
+				north: 3,
+				south: 3,
+				east: 3,
+				west: 3
+			},
+			texVerts: [],
+			varients: [],
+			buffer: null,
+			size: 6,
+			rotate: true
+		},
+		hanging: {
+			verts: [
+				// x, y, z, width, height, textureX, textureY
+				// 0, 0, 0 is the corner on the top left of the texture
+				[objectify(5,  0, 5, 6, 6, 0, 9)], //bottom
+				[objectify(6, 9, 10, 4, 4, 1, 10),objectify(5, 7, 11, 6, 6, 0, 9)], //top
+				[objectify(10, 9, 10, 4, 2, 1, 0),objectify(11, 7, 11, 6, 7, 0, 2),objectify(9.5, 11, 8, 3, 2, 11, 10),objectify(9.5, 16, 8, 3, 3, 11, 2)], //north
+				[objectify(6, 9, 6, 4, 2, 1, 0),objectify(5, 7, 5, 6, 7, 0, 2),objectify(6.5, 11, 8, 3, 2, 11, 10),objectify(6.5, 16, 8, 3, 3, 11, 2)], //south
+				[objectify(10, 9, 6, 4, 2, 1, 0),objectify(11, 7, 5, 6, 7, 0, 2),objectify(8, 14, 6.5, 3, 4, 11, 1)], //east
+				[objectify(6, 9, 10, 4, 2, 1, 0),objectify(5, 7, 11, 6, 7, 0, 2),objectify(8, 14, 9.5, 3, 4, 11, 1)]  //west
+			],
+			cull: {
+				top: 0,
+				bottom: 3,
+				north: 0,
+				south: 0,
+				east: 0,
+				west: 0
+			},
+			texVerts: [],
+			varients: [],
+			buffer: null,
+			size: 6,
+			rotate: true
+		},
+        ladder: {
+			verts: [
+				// x, y, z, width, height, textureX, textureY
+				// 0, 0, 0 is the corner on the top left of the texture         // The commented code is for 2-high door placement.
+				[objectify( 0,  0,  0, 16, 0.5, 0, 0)], //bottom
+				[objectify( 0, 16, 0.5, 16, 0.5, 0, 0)],
+				[objectify(16, 16, 0.5, 16, 16, 0, 0)],
+				[objectify( 0, 16,  0, 16, 16, 0, 0)],
+				[objectify(16, 16,  0, 0.5, 16, 0, 0)],
+				[objectify( 0, 16, 0.5, 0.5, 16, 0, 0)]
+			],
+			cull: {
+				top: 3,
+				bottom: 3,
+				north: 3,
+				south: 3,
+				east: 3,
+				west: 3
+			},
+			texVerts: [],
+			varients: [],
+			buffer: null,
+			size: 6,
 			rotate: true
 		},
 	}
@@ -1693,13 +2140,28 @@ let drawScreens = {
 			let slabBlock = Object.create(baseBlock)
 			let flowerBlock = Object.create(baseBlock)
 			let stairBlock = Object.create(baseBlock)
+			let doorBlock = Object.create(baseBlock)
+			let torchBlock = Object.create(baseBlock)
+			let lanternBlock = Object.create(baseBlock)
+			let hangingBlock = Object.create(baseBlock)
+			let ladderBlock = Object.create(baseBlock)
 			slabBlock.shape = shapes.slab
-			baseBlock.shape = shapes.cube
 			flowerBlock.shape = shapes.flower
+			baseBlock.shape = shapes.cube
 			stairBlock.shape = shapes.stair
+			doorBlock.shape = shapes.door
+			torchBlock.shape = shapes.torch
+			lanternBlock.shape = shapes.lantern
+			hangingBlock.shape = shapes.hanging
+			ladderBlock.shape = shapes.ladder
 			blockData[i | SLAB] = slabBlock
 			blockData[i | STAIR] = stairBlock
 			blockData[i | FLOWER] = flowerBlock
+			blockData[i | DOOR] = doorBlock
+			blockData[i | TORCH] = torchBlock
+			blockData[i | LANTERN] = lanternBlock
+			blockData[i | HANGING] = hangingBlock
+			blockData[i | LADDER] = ladderBlock
 			let v = slabBlock.shape.varients
 			for (let j = 0; j < v.length; j++) {
 				if (v[j]) {
@@ -1724,6 +2186,46 @@ let drawScreens = {
 					blockData[i | STAIR | j << 10] = block
 				}
 			}
+			v = doorBlock.shape.varients
+			for (let j = 0; j < v.length; j++) {
+				if (v[j]) {
+					let block = Object.create(baseBlock)
+					block.shape = v[j]
+					blockData[i | DOOR | j << 10] = block
+				}
+			}
+			v = torchBlock.shape.varients
+			for (let j = 0; j < v.length; j++) {
+				if (v[j]) {
+					let block = Object.create(baseBlock)
+					block.shape = v[j]
+					blockData[i | TORCH | j << 10] = block
+				}
+			}
+			v = lanternBlock.shape.varients
+			for (let j = 0; j < v.length; j++) {
+				if (v[j]) {
+					let block = Object.create(baseBlock)
+					block.shape = v[j]
+					blockData[i | LANTERN | j << 10] = block
+				}
+			}
+			v = hangingBlock.shape.varients
+			for (let j = 0; j < v.length; j++) {
+				if (v[j]) {
+					let block = Object.create(baseBlock)
+					block.shape = v[j]
+					blockData[i | HANGING | j << 10] = block
+				}
+			}
+			v = ladderBlock.shape.varients
+			for (let j = 0; j < v.length; j++) {
+				if (v[j]) {
+					let block = Object.create(baseBlock)
+					block.shape = v[j]
+					blockData[i | LADDER | j << 10] = block
+				}
+			}
 		}
 	}
 	let indexOrder;
@@ -1739,6 +2241,11 @@ let drawScreens = {
 	let slabIconVerts
 	let flowerIconVerts
 	let stairIconVerts
+	let doorIconVerts
+	let torchIconVerts
+	let lanternIconVerts
+	let hangingIconVerts
+	let ladderIconVerts
 	let blockIcons
 	{
 		let side = Math.sqrt(3) / 2
@@ -1749,11 +2256,17 @@ let drawScreens = {
 			0, 0, 1, side, 0.5, 1, side, -0.5, 1, 0, -1, 1,
 			-side, 0.5, 1, 0, 0, 1, 0, -1, 1, -side, -0.5, 1,
 		])
-
+		
 		slabIconVerts = new Float32Array([
 			0, 0.5, 1, side, 0, 1, 0, -0.5, 1, -side, 0, 1,
 			0, -0.5, 1, side, 0, 1, side, -0.5, 1, 0, -1, 1,
 			-side, 0, 1, 0, -0.5, 1, 0, -1, 1, -side, -0.5, 1,
+		])
+
+		flowerIconVerts = new Float32Array([
+			0, 1, 1, side, 0.5, 1, 0, 0, 1, -side, 0.5, 1,
+			0, 0, 1, side, 0.5, 1, side, -0.5, 1, 0, -1, 1,
+			-side, 0.5, 1, 0, 0, 1, 0, -1, 1, -side, -0.5, 1,
 		])
 
 		stairIconVerts = [
@@ -1764,6 +2277,30 @@ let drawScreens = {
 			-s,0.5,0,0,0.8,      -q,0.25,0.5,0,0.8, -q,-0.75,0.5,1,0.8, -s,-0.5,0,1,0.8,    // side of the top step
 			-q,-0.25,0.5,0.5,0.8, 0,-0.5,1,0.5,0.8,  0,-1,1,1,0.8,      -q,-0.75,0.5,1,0.8, // side of the bottom step
 		]
+		
+		doorIconVerts = new Float32Array([
+			0, 0.5, 1, side, 0, 1, 0, -0.5, 1, -side, 0, 1,
+			0, -0.5, 1, side, 0, 1, side, -0.5, 1, 0, -1, 1,
+			-side, 0, 1, 0, -0.5, 1, 0, -1, 1, -side, -0.5, 1,
+		])
+		
+		torchIconVerts = new Float32Array([
+			0, 1, 1, side, 0.5, 1, 0, 0, 1, -side, 0.5, 1,
+			0, 0, 1, side, 0.5, 1, side, -0.5, 1, 0, -1, 1,
+			-side, 0.5, 1, 0, 0, 1, 0, -1, 1, -side, -0.5, 1,
+		])
+		
+		lanternIconVerts = new Float32Array([
+		    0, 1, 1, side, 0.5, 1, 0, 0, 1, -side, 0.5, 1,
+			0, 0, 1, side, 0.5, 1, side, -0.5, 1, 0, -1, 1,
+			-side, 0.5, 1, 0, 0, 1, 0, -1, 1, -side, -0.5, 1,
+		])
+		
+		hangingIconVerts = new Float32Array([
+		    0, 1, 1, side, 0.5, 1, 0, 0, 1, -side, 0.5, 1,
+			0, 0, 1, side, 0.5, 1, side, -0.5, 1, 0, -1, 1,
+			-side, 0.5, 1, 0, 0, 1, 0, -1, 1, -side, -0.5, 1,
+		])
 	}
 	function genIcons() {
 		blockIcons = [null]
@@ -1806,6 +2343,21 @@ let drawScreens = {
 			blockIcons.lengths[i | SLAB] = 6 * 3
 
 			data = []
+			for (let j = 11; j >= 0; j--) {
+				data.push(-flowerIconVerts[j * 3 + 0] * scale)
+				data.push(flowerIconVerts[j * 3 + 1] * scale)
+				data.push(0.1666666)
+				data.push(textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]][(j * 2 + 0) % 8])
+				data.push(textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]][(j * 2 + 1) % 8])
+				data.push(shadows[Math.floor(j / 2)])
+			}
+			buffer = gl.createBuffer()
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
+			blockIcons[i | FLOWER] = buffer
+			blockIcons.lengths[i | FLOWER] = 6 * 2
+
+			data = []
 			let v = stairIconVerts
 			for (let j = 23; j >= 0; j--) {
 				let num = Math.floor(j / 8)
@@ -1824,6 +2376,86 @@ let drawScreens = {
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
 			blockIcons[i | STAIR] = buffer
 			blockIcons.lengths[i | STAIR] = 6 * 6
+			
+			data = []
+			for (let j = 11; j >= 0; j--) {
+				let tex = textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]]
+
+				data.push(-torchIconVerts[j * 3 + 0] * scale)
+				data.push(torchIconVerts[j * 3 + 1] * scale)
+				data.push(0.1666666)
+				data.push(tex[(j * 2 + 0) % 8])
+				data.push(tex[(j * 2 + 1) % 8])
+				data.push(shadows[Math.floor(j / 4)])
+			}
+			buffer = gl.createBuffer()
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
+			blockIcons[i | DOOR] = buffer
+			blockIcons.lengths[i | DOOR] = 6 * 1
+			
+			data = []
+			for (let j = 11; j >= 0; j--) {
+				data.push(-doorIconVerts[j * 3 + 0] * scale)
+				data.push(doorIconVerts[j * 3 + 1] * scale)
+				data.push(0.1666666)
+				data.push(textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]][(j * 2 + 0) % 8])
+				data.push(textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]][(j * 2 + 1) % 8])
+				data.push(shadows[Math.floor(j / 2)])
+			}
+			buffer = gl.createBuffer()
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
+			blockIcons[i | TORCH] = buffer
+			blockIcons.lengths[i | TORCH] = 6 * 1
+			
+			data = []
+			for (let j = 11; j >= 0; j--) {
+				data.push(-lanternIconVerts[j * 3 + 0] * scale)
+				data.push(lanternIconVerts[j * 3 + 1] * scale)
+				data.push(0.1666666)
+				data.push(textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]][(j * 2 + 0) % 8])
+				data.push(textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]][(j * 2 + 1) % 8])
+				data.push(shadows[Math.floor(j / 8)])
+			}
+			buffer = gl.createBuffer()
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
+			blockIcons[i | LANTERN] = buffer
+			blockIcons.lengths[i | LANTERN] = 6 * 3
+			
+			data = []
+			for (let j = 11; j >= 0; j--) {
+				data.push(-hangingIconVerts[j * 3 + 0] * scale)
+				data.push(hangingIconVerts[j * 3 + 1] * scale)
+				data.push(0.1666666)
+				data.push(textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]][(j * 2 + 0) % 8])
+				data.push(textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]][(j * 2 + 1) % 8])
+				data.push(shadows[Math.floor(j / 16)])
+			}
+			buffer = gl.createBuffer()
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
+			blockIcons[i | HANGING] = buffer
+			blockIcons.lengths[i | HANGING] = 6 * 3
+			
+			data = []
+			for (let j = 11; j >= 0; j--) {
+				let tex = textureCoords[textureMap[block.textures[texOrder[Math.floor(j / 4)]]]]
+
+				data.push(-torchIconVerts[j * 3 + 0] * scale)
+				data.push(torchIconVerts[j * 3 + 1] * scale)
+				data.push(0.1666666)
+				data.push(tex[(j * 2 + 0) % 8])
+				data.push(tex[(j * 2 + 1) % 8])
+				data.push(shadows[Math.floor(j / 16)])
+			}
+			buffer = gl.createBuffer()
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
+			blockIcons[i | LADDER] = buffer
+			blockIcons.lengths[i | LADDER] = 6 * 1
+
 		}
 	}
 
@@ -2486,27 +3118,6 @@ let drawScreens = {
 		let pyy = roundBits(p.y + p.topH - y)
 		let pzz = roundBits(p.z + p.w - z)
 		let minX, minY, minZ, maxX, maxY, maxZ, min, max
-		if(block == blockIds.Water && block != blockIds.air) {
-			p.jumpSpeed = 0.3;
-			liquid = true
-			p.gravityStength = -0.03;
-			r = 255
-			return false;
-			p.gravityStength = 0.03;
-
-		}
-		if(block == blockIds.cactus) {
-			p.health -= 0.01;
-		}
-		else{
-			liquid = false
-			p.jumpSpeed = 0.3;
-			p.gravityStength = -0.031;
-			}
-			if (block == !blockIds.Water){
-			p.jumpSpeed = 0.3;
-			p.gravityStength = -0.031;
-			}
 
 		//Top and bottom faces
 		let faces = verts[0]
@@ -2586,7 +3197,13 @@ let drawScreens = {
 	}
 	let contacts = {
 		array: [],
+		boingarray: [],
+		halfarray: [],
+		repelarray: [],
 		size: 0,
+		boingsize: 0,
+		halfsize: 0,
+		repelsize: 0,
 		add: function(x, y, z, block) {
 			if (this.size === this.array.length) {
 				this.array.push([ x, y, z, block ])
@@ -2598,8 +3215,44 @@ let drawScreens = {
 			}
 			this.size++
 		},
+		boingadd: function(x2, y2, z2, block2) {
+			if (this.boingsize === this.boingarray.length) {
+				this.boingarray.push([ x2, y2, z2, block2 ])
+			} else {
+				this.boingarray[this.boingsize][0] = x2
+				this.boingarray[this.boingsize][1] = y2
+				this.boingarray[this.boingsize][2] = z2
+				this.boingarray[this.boingsize][3] = block2
+			}
+			this.boingsize++
+		},
+		halfadd: function(x3, y3, z3, block3) {
+			if (this.halfsize === this.halfarray.length) {
+				this.halfarray.push([ x3, y3, z3, block3 ])
+			} else {
+				this.halfarray[this.halfsize][0] = x3
+				this.halfarray[this.halfsize][1] = y3
+				this.halfarray[this.halfsize][2] = z3
+				this.halfarray[this.halfsize][3] = block3
+			}
+			this.halfsize++
+		},
+		repeladd: function(x3, y3, z3, block3) {
+			if (this.repelsize === this.repelarray.length) {
+				this.repelarray.push([ x3, y3, z3, block3 ])
+			} else {
+				this.repelarray[this.repelsize][0] = x3
+				this.repelarray[this.repelsize][1] = y3
+				this.repelarray[this.repelsize][2] = z3
+				this.repelarray[this.repelsize][3] = block3
+			}
+			this.repelsize++
+		},
 		clear: function() {
 			this.size = 0
+			this.boingsize = 0
+			this.halfsize = 0
+			this.repelsize = 0
 		},
 	}
 	let resolveContactsAndUpdatePosition = function() {
@@ -2618,6 +3271,15 @@ let drawScreens = {
 					let block = world.getBlock(x, y, z)
 					if (blockData[block].solid) {
 						contacts.add(x, y, z, block)
+					}
+					if (blockData[block].boing) {
+						contacts.boingadd(x, y, z, block)
+					}
+					if (blockData[block].halfsolid) {
+						contacts.halfadd(x, y, z, block)
+					}
+					if (blockData[block].repel) {
+						contacts.repeladd(x, y, z, block)
 					}
 				}
 			}
@@ -2643,6 +3305,28 @@ let drawScreens = {
 				break
 			}
 		}
+		for (let i = 0; i < contacts.boingsize; i++) {
+			block = contacts.boingarray[i]
+			if (!collided(block[0], block[1], block[2], vel.x, vel.y, vel.z, block[3]) && vel.y < 0.5 && !p.spectating) {
+				vel.y+=0.1
+				break
+			}
+		}
+		for (let i = 0; i < contacts.halfsize; i++) {
+			block = contacts.halfarray[i]
+			if (collided(block[0], block[1], block[2], 0, vel.y, 0, block[3])) {
+				vel.y += -0.016
+				break
+			}
+		}
+		for (let i = 0; i < contacts.repelsize; i++) {
+			block = contacts.repelarray[i]
+			if (collided(block[0], block[1], block[2], 0, vel.y, 0, block[3])) {
+				p.y = p.previousY
+				vel.y = 0
+				break
+			}
+		}
 		if (p.y === p.previousY && !p.flying) {
 			p.canStepX = true
 			p.canStepZ = true
@@ -2657,6 +3341,23 @@ let drawScreens = {
 					break
 				}
 			}
+			for (let i = 0; i < contacts.boingsize; i++) {
+				block = contacts.boingarray[i]
+				if (onBox(block[0], block[1], block[2], 1, 1, 1)) {
+					sneakLock = true
+					vel.y = 0
+					break
+				}
+			}
+			for (let i = 0; i < contacts.halfsize; i++) {
+				block = contacts.halfarray[i]
+				if (onBox(block[0], block[1], block[2], 1, 1, 1)) {
+					sneakLock = true
+					vel.y = 0
+					break
+				}
+			}
+			
 		}
 
 		//Check collisions in the X direction
@@ -2675,10 +3376,42 @@ let drawScreens = {
 				sneakSafe = true
 			}
 		}
-
+		
+		for (let i = 0; i < contacts.halfsize; i++) {
+			block = contacts.halfarray[i]
+			if (collided(block[0], block[1], block[2], vel.x, 0, 0, block[3])) {
+				if (p.canStepX && !world.getBlock(block[0], block[1] + 1, block[2]) && !world.getBlock(block[0], block[1] + 2, block[2])) {
+					continue
+				}
+				p.x = p.previousX
+				vel.x = 0
+				break
+			}
+			if (sneakLock && onBox(block[0], block[1], block[2], 1, 1, 1)) {
+				sneakSafe = true
+				vel.x = 0
+			}
+		}
+		
+		for (let i = 0; i < contacts.repelsize; i++) {
+			block = contacts.repelarray[i]
+			if (collided(block[0], block[1], block[2], vel.x, 0, 0, block[3])) {
+				if (p.canStepX && !world.getBlock(block[0], block[1] + 1, block[2]) && !world.getBlock(block[0], block[1] + 2, block[2])) {
+					continue
+				}
+				p.x = p.previousX
+				vel.x = 1
+				break
+			}
+			if (sneakLock && onBox(block[0], block[1], block[2], 1, 1, 1)) {
+				sneakSafe = true
+			}
+		}
+		
 		if (sneakLock && !sneakSafe) {
 			p.x = p.previousX
 			vel.x = 0
+			vel.y = 0
 		}
 		sneakSafe = false
 
@@ -2698,10 +3431,42 @@ let drawScreens = {
 				sneakSafe = true
 			}
 		}
+		
+		for (let i = 0; i < contacts.halfsize; i++) {
+			block = contacts.halfarray[i]
+			if (collided(block[0], block[1], block[2], 0, 0, vel.z, block[3])) {
+				if (p.canStepZ && !world.getBlock(block[0], block[1] + 1, block[2]) && !world.getBlock(block[0], block[1] + 2, block[2])) {
+					continue
+				}
+				p.z = p.previousZ
+				break
+			}
+			if (sneakLock && onBox(block[0], block[1], block[2], 1, 1, 1)) {
+				sneakSafe = true
+			}
+		}
+		
+		for (let i = 0; i < contacts.repelsize; i++) {
+			block = contacts.repelarray[i]
+			if (collided(block[0], block[1], block[2], 0, 0, vel.z, block[3])) {
+				if (p.canStepZ && !world.getBlock(block[0], block[1] + 1, block[2]) && !world.getBlock(block[0], block[1] + 2, block[2])) {
+					continue
+				}
+				p.z = p.previousZ
+				vel.z = 0
+				break
+			}
+			if (sneakLock && onBox(block[0], block[1], block[2], 1, 1, 1)) {
+				sneakSafe = true
+			}
+		}
+		
+		
 
 		if (sneakLock && !sneakSafe) {
 			p.z = p.previousZ
 			vel.z = 0
+			vel.y = 0
 		}
 
 		if (!p.flying) {
@@ -2729,27 +3494,19 @@ let drawScreens = {
 		let dt = (win.performance.now() - p.lastUpdate) / 33
 		dt = dt > 2 ? 2 : dt
 		if(p.onGround) {
-		    if(p.velocity.y < -0.5) {
-			    p.health -= -Math.floor(p.velocity.y*-(p.velocity.y*15));
-			}
 			if(Key[" "]) {
-				p.velocity.y = p.jumpSpeed;
-				p.onGround = false;
+				p.velocity.y = p.jumpSpeed
+				p.onGround = false
 			} else {
-			    
-				p.velocity.y = 0;
+				p.velocity.y = 0
 			}
 		} else {
-			p.velocity.y += p.gravityStength * dt;
+			p.velocity.y += p.gravityStength * dt
 			if(p.velocity.y < -p.maxYVelocity) {
-				p.velocity.y = -p.maxYVelocity;
+				p.velocity.y = -p.maxYVelocity
 			}
 		}
-		if(p.health <= 0) {
-		 setTimeout(() => {  changeScene("dead"); }, 200);
-
-		}
-	};
+	}
 
 	function box2(sides, tex) {
 		if (blockFill) {
@@ -3218,13 +3975,13 @@ let drawScreens = {
 					if (sides & Block[side]) {
 						shadows = getShadows[side](x, y, z, blocks)
 						let directionalFaces = shapeVerts[Sides[side]]
-						 if (directionalFaces.length > 1) {
-						 	let average = (shadows[0] + shadows[1] + shadows[2] + shadows[3]) / 4
-						 	shadows[0] = average
-						 	shadows[1] = average
-						 	shadows[2] = average
-						 	shadows[3] = average
-						 }
+						// if (directionalFaces.length > 1) {
+						// 	let average = (shadows[0] + shadows[1] + shadows[2] + shadows[3]) / 4
+						// 	shadows[0] = average
+						// 	shadows[1] = average
+						// 	shadows[2] = average
+						// 	shadows[3] = average
+						// }
 						for (let facei = 0; facei < directionalFaces.length; facei++) {
 							verts = directionalFaces[facei]
 							texVerts = textureCoords[textureMap[tex[texNum]]]
@@ -3307,7 +4064,6 @@ let drawScreens = {
 					if (world.getBlock(x, y, z) === blockIds.dirt && world.getBlock(x, y + 1, z) === blockIds.air) {
 						world.setBlock(x, y, z, blockIds.grass, false)
 					}
-
 				}
 			}
 		}
@@ -3404,27 +4160,16 @@ let drawScreens = {
 				}
 			}
 		}
-populate() {
+		populate() {
 			randomSeed(hash(this.x, this.z) * 210000000)
 			let wx = 0, wz = 0, ground = 0, top = 0, rand = 0, place = false
-			let biomeSmooth = generator.biomeSmooth;
-			let biome = 0;
-			let gen = 0;
-			let trueX = this.x;
-			let trueZ = this.z;
-			let smoothness = generator.smooth
-			let hilliness = generator.hilliness
-			var items = [blockIds.jungleLog, blockIds.darkOakLog, blockIds.acaciaLog,blockIds.birchLog]
-			var randomtree = items[Math.floor(Math.random() * items.length)];
+
 			for (let i = 0; i < 16; i++) {
 				for (let k = 0; k < 16; k++) {
 					wx = this.x + i
 					wz = this.z + k
 					ground = this.tops[k * 16 + i]
-					gen = superflat ? 4 : Math.round(noise((trueX + i) * smoothness, (trueZ + k) * smoothness) * hilliness) + generator.extra
-					biome = superflat ? 0 : Math.round(noise((trueX + i) * biomeSmooth, (trueZ + k) * biomeSmooth));
-if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass) {
-
+					if (trees && random() < 0.005 && this.getBlock(i, ground, k)) {
 
 						top = ground + Math.floor(4.5 + random(2.5))
 						rand = Math.floor(random(4096))
@@ -3436,7 +4181,6 @@ if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass)
 						}
 						this.setBlock(i, top + 1, k, blockIds.leaves)
 						this.setBlock(i, ground, k, blockIds.dirt)
-
 
 						//Bottom leaves
 						for (let x = -2; x <= 2; x++) {
@@ -3495,18 +4239,6 @@ if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass)
 						world.spawnBlock(wx, top + 1, wz + 1, blockIds.leaves)
 						world.spawnBlock(wx - 1, top + 1, wz, blockIds.leaves)
 					}
-	if (random() < 0.01 && this.getBlock(i, ground, k) && biome > 0.5 && ground > 60) {
-					top = ground + Math.floor(2.5 + random(1.5));
-					rand = Math.floor(random(4096));
-					let tree = blockIds.cactus;
-
-					//Center
-					for (let j = ground + 1; j <= top; j++) {
-						this.setBlock(i, j, k, tree);
-					}
-					this.setBlock(i, ground, k, blockIds.sand);
-				} // cactus
-				
 
 					// Blocks of each per chunk in Minecraft
 					// Coal: 185.5
@@ -3515,90 +4247,72 @@ if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass)
 					// Redstone: 29.1
 					// Diamond: 3.7
 					// Lapis: 4.1
-				ground -= 4;
-
-				if (random() < 3.7 / 256) {
-					let y = random() * 16 | 0 + 1;
-					y = y < ground ? y : ground;
-					if (this.getBlock(i, y, k)) {
-						this.setBlock(i, y < ground ? y : ground, k, blockIds.diamondOre);
-					}
-				}
-
-				if (random() < 111.5 / 256) {
-					let y = random() * 64 | 0 + 1;
-					y = y < ground ? y : ground;
-					if (this.getBlock(i, y, k)) {
-						this.setBlock(i, y < ground ? y : ground, k, blockIds.ironOre);
-					}
-				}
-
-				if (random() < 185.5 / 256) {
-					let y = random() * ground | 0 + 1;
-					y = y < ground ? y : ground;
-					if (this.getBlock(i, y, k)) {
-						this.setBlock(i, y < ground ? y : ground, k, blockIds.coalOre);
-					}
-				}
-
-				if (random() < 10.4 / 256) {
-					let y = random() * 32 | 0 + 1;
-					y = y < ground ? y : ground;
-					if (this.getBlock(i, y, k)) {
-						this.setBlock(i, y < ground ? y : ground, k, blockIds.goldOre);
-					}
-				}
-
-				if (random() < 29.1 / 256) {
-					let y = random() * 16 | 0 + 1;
-					y = y < ground ? y : ground;
-					if (this.getBlock(i, y, k)) {
-						this.setBlock(i, y < ground ? y : ground, k, blockIds.redstoneOre);
-					}
-				}
-
-				if (random() < 4.1 / 256) {
-					let y = random() * 32 | 0 + 1;
-					y = y < ground ? y : ground;
-					if (this.getBlock(i, y, k)) {
-						this.setBlock(i, y < ground ? y : ground, k, blockIds.lapisOre);
-					}
-				}
-				
-				if(random() < 0.1/300) {
-				    let y = 40;
-				    let cobvsmoss = random() < 0.01 ? blockIds.mossyCobble : blockIds.mossyCobble;
-					for(let xxx = 3;xxx<10;xxx++) {
-					    for(let zzz = 3;zzz<10;zzz++) {
-						        this.setBlock(xxx, y+3, zzz, cobvsmoss); 
-						this.setBlock(xxx, y-3, zzz, cobvsmoss);          
-						for(let hhh = y-3;hhh<y+3;hhh++) {
-						    this.setBlock(xxx,hhh, 3, cobvsmoss);
-						    this.setBlock(xxx,hhh, 9, cobvsmoss);
-						    this.setBlock(3, hhh,zzz, cobvsmoss);
-						    this.setBlock(9, hhh,zzz, cobvsmoss);
-						    
+					ground -= 4
+					
+					if (random() < 1.3 / 256) {
+						let y = random() * 16 | 0 + 1
+						y = y < ground ? y : ground
+						if (this.getBlock(i, y, k)) {
+							this.setBlock(i, y < ground ? y : ground, k, blockIds.emeraldOre)
 						}
-						
-					    }
 					}
-					for(let xxx = 4;xxx<9;xxx++) {
-					    for(let zzz = 4;zzz<9;zzz++){
-					        for(let yyy = y-2;yyy<y+3;yyy++){
-					            this.setBlock(xxx,yyy,zzz, blockIds.air, true)
-					        }
-					    }
+
+					if (random() < 3.7 / 256) {
+						let y = random() * 16 | 0 + 1
+						y = y < ground ? y : ground
+						if (this.getBlock(i, y, k)) {
+							this.setBlock(i, y < ground ? y : ground, k, blockIds.diamondOre)
+						}
 					}
-					this.setBlock(6, y-2, 6, blockIds.coalBlock);
+
+					if (random() < 111.5 / 256) {
+						let y = random() * 64 | 0 + 1
+						y = y < ground ? y : ground
+						if (this.getBlock(i, y, k)) {
+							this.setBlock(i, y < ground ? y : ground, k, blockIds.ironOre)
+						}
+					}
+
+					if (random() < 185.5 / 256) {
+						let y = random() * ground | 0 + 1
+						y = y < ground ? y : ground
+						if (this.getBlock(i, y, k)) {
+							this.setBlock(i, y < ground ? y : ground, k, blockIds.coalOre)
+						}
+					}
+
+					if (random() < 10.4 / 256) {
+						let y = random() * 32 | 0 + 1
+						y = y < ground ? y : ground
+						if (this.getBlock(i, y, k)) {
+							this.setBlock(i, y < ground ? y : ground, k, blockIds.goldOre)
+						}
+					}
+
+					if (random() < 29.1 / 256) {
+						let y = random() * 16 | 0 + 1
+						y = y < ground ? y : ground
+						if (this.getBlock(i, y, k)) {
+							this.setBlock(i, y < ground ? y : ground, k, blockIds.redstoneOre)
+						}
+					}
+
+					if (random() < 4.1 / 256) {
+						let y = random() * 32 | 0 + 1
+						y = y < ground ? y : ground
+						if (this.getBlock(i, y, k)) {
+							this.setBlock(i, y < ground ? y : ground, k, blockIds.lapisOre)
+						}
+					}
 				}
 			}
-		}
-		//Plant gen
+			
+			//Plant gen
 {
             for (let i = 0; i < 16; i++) {
 	for (let k = 0; k < 16; k++) {
 		ground = this.tops[k * 16 + i]
-	if (trees && random() < 0.04 && this.getBlock(i, ground, k) && this.getBlock(i, ground, k) === blockIds.grass) {
+	if (trees && random() < 0.04 && this.getBlock(i, ground, k)) {
 
         top = ground + Math.floor(4.5 + random(2.5))
 	this.setBlock(i, ground + 1, k, blockIds.poppy | FLOWER)
@@ -3608,7 +4322,7 @@ if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass)
             for (let i = 0; i < 16; i++) {
 	for (let k = 0; k < 16; k++) {
 		ground = this.tops[k * 16 + i]
-	if (trees && random() < 0.02 && this.getBlock(i, ground, k)&& this.getBlock(i, ground, k) === blockIds.grass) {
+	if (trees && random() < 0.02 && this.getBlock(i, ground, k)) {
 
         top = ground + Math.floor(4.5 + random(2.5))
 	this.setBlock(i, ground + 1, k, blockIds.dandelion | FLOWER)
@@ -3618,7 +4332,7 @@ if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass)
             for (let i = 0; i < 16; i++) {
 	for (let k = 0; k < 16; k++) {
 		ground = this.tops[k * 16 + i]
-	if (trees && random() < 0.009 && this.getBlock(i, ground, k)&& this.getBlock(i, ground, k) === blockIds.grass) {
+	if (trees && random() < 0.009 && this.getBlock(i, ground, k)) {
 
         top = ground + Math.floor(4.5 + random(2.5))
 	this.setBlock(i, ground + 1, k, blockIds.flowerOftheValley | FLOWER)
@@ -3628,7 +4342,7 @@ if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass)
             for (let i = 0; i < 16; i++) {
 	for (let k = 0; k < 16; k++) {
 		ground = this.tops[k * 16 + i]
-	if (trees && random() < 0.09 && this.getBlock(i, ground, k)&& this.getBlock(i, ground, k) === blockIds.grass) {
+	if (trees && random() < 0.09 && this.getBlock(i, ground, k)) {
 
         top = ground + Math.floor(4.5 + random(2.5))
 	this.setBlock(i, ground + 1, k, blockIds.TallGrass | FLOWER)
@@ -3636,7 +4350,7 @@ if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass)
 	}
 }
 }
-		this.populated = true;
+			this.populated = true
 		}
 		genMesh() {
 			let start = win.performance.now()
@@ -3785,87 +4499,36 @@ if (trees && random() < 0.005 && this.getBlock(i, ground, k) === blockIds.grass)
 			this.loadFrom = []
 			this.lastChunk = ","
 		}
-genChunk(chunk) {
-		let x = chunk.x >> 4
-		let z = chunk.z >> 4
-		let trueX = chunk.x
-		let trueZ = chunk.z
+		genChunk(chunk) {
+			let x = chunk.x >> 4
+			let z = chunk.z >> 4
+			let trueX = chunk.x
+			let trueZ = chunk.z
 
-		if (chunk.generated) {
-			return false
-		}
-		let hide = !loadString
-		let smoothness = generator.smooth
-		let hilliness = generator.height
-		let biomeSmooth = generator.biomeSmooth;
-		let gen = 0;
-		let biome = 0;
-		for (let i = 0; i < 16; i++) {
-			for (let k = 0; k < 16; k++) {
-				if(gen<120 && !superflat) {
-			    gen = 100;
-			    chunk.setBlock(i, gen, k, blockIds.air);
-
+			if (chunk.generated) {
+				return false
 			}
-				biome = superflat ? 0 : Math.round(noise((trueX + i) * biomeSmooth, (trueZ + k) * biomeSmooth));
-				gen = superflat ? 4 : Math.round(noise((trueX + i) * smoothness, (trueZ + k) * smoothness) * hilliness) + generator.extra
-				chunk.tops[k * 16 + i] = gen
-				
-				
+			let hide = !loadString
+			let smoothness = generator.smooth
+			let hilliness = generator.height
+			let gen = 0
+			for (let i = 0; i < 16; i++) {
+				for (let k = 0; k < 16; k++) {
+					gen = superflat ? 4 : Math.round(noise((trueX + i) * smoothness, (trueZ + k) * smoothness) * hilliness) + generator.extra
+					chunk.tops[k * 16 + i] = gen
 
-		    if(biome > 0.25 && !superflat){
-			
-			chunk.tops[k * 16 + i] = gen;
-
-			chunk.setBlock(i, gen, k, blockIds.sand);
-			chunk.setBlock(i, gen - 1, k, blockIds.sand);
-			chunk.setBlock(i, gen - 2, k, blockIds.sand);
-			chunk.setBlock(i, gen - 3, k, blockIds.sand);
-			        		if(gen<60 && !superflat) {
-				    gen = 59;
-				    chunk.setBlock(i, gen, k, blockIds.Water);
-				    chunk.setBlock(i, gen - 1, k, blockIds.Water);
-				    chunk.setBlock(i, gen - 2, k, blockIds.gravel);
-				    chunk.setBlock(i, gen - 3, k, blockIds.gravel);
-				}
-			if(gen>120){
-			    chunk.setBlock(i, gen, k, blockIds.stone);
-			}
-			if(gen>140){
-			    chunk.setBlock(i, gen, k, blockIds.sand);
-			}
-		}
-
-			if(biome < 0.5){
-			chunk.tops[k * 16 + i] = gen;
-
-
-			chunk.setBlock(i, gen, k, blockIds.grass);
-			chunk.setBlock(i, gen - 1, k, blockIds.dirt);
-			chunk.setBlock(i, gen - 2, k, blockIds.dirt);
-			chunk.setBlock(i, gen - 3, k, blockIds.dirt);
-        		if(gen<60 && !superflat) {
-				    gen = 59;
-
-				    chunk.setBlock(i, gen, k, blockIds.Water);
-				    chunk.setBlock(i, gen - 1, k, blockIds.Water);
-				    chunk.setBlock(i, gen - 2, k, blockIds.gravel);
-				    chunk.setBlock(i, gen - 3, k, blockIds.gravel);
-					if (world.getBlock(i, gen, k) === blockIds.Water && world.getBlock(i, gen + 1, k) === blockIds.air) {
-						world.setBlock(i, gen, k, blockIds.Water, false)
+					chunk.setBlock(i, gen, k, blockIds.grass)
+					chunk.setBlock(i, gen - 1, k, blockIds.dirt)
+					chunk.setBlock(i, gen - 2, k, blockIds.dirt)
+					chunk.setBlock(i, gen - 3, k, blockIds.dirt)
+					for (let j = 1; j < gen - 3; j++) {
+						chunk.setBlock(i, j, k, blockIds.stone)
 					}
+					chunk.setBlock(i, 0, k, blockIds.bedrock)
 				}
-		    }
-		    
-
-				for (let j = 1; j < gen - 3; j++) {
-					chunk.setBlock(i, j, k, blockIds.stone)
-				}
-				chunk.setBlock(i, 0, k, blockIds.bedrock)
 			}
+			chunk.generated = true
 		}
-		chunk.generated = true
-	}
 		getAdjacentSubchunks(x, y, z) {
 			let minChunkX = x - 16 >> 4
 			let maxChunkX = x + 16 >> 4
@@ -3993,7 +4656,7 @@ genChunk(chunk) {
 			if (Key.leftMouse && !Key.control && p.lastBreak < Date.now() - 250 && screen === "play") {
 				changeWorldBlock(0)
 			}
-			if ((Key.rightMouse || Key.leftMouse && Key.control) && p.lastPlace < Date.now() - 250) {
+			if ((Key.rightMouse || Key.leftMouse && Key.control) && p.lastPlace < Date.now() - 150) {
 				newWorldBlock()
 			}
 			if (Key.leftMouse && p.autoBreak && !Key.control) {
@@ -4202,7 +4865,7 @@ genChunk(chunk) {
 		}
 		loadSave(str) {
 			let data = str.split(";")
-			if (!str.includes("Alpha")) {
+			if (!str.includes("Beta")) {
 				return this.loadOldSave(str)
 			}
 
@@ -4573,7 +5236,7 @@ genChunk(chunk) {
 
 		// Main menu buttons
 		Button.add(width / 2, height / 2 - 20, 400, 40, "Singleplayer", "main menu", r => changeScene("loadsave menu"))
-		Button.add(width / 2, height / 2 + 35, 400, 40, "Multiplayer", "main menu", nothing, always, "Multiplayer is possible at https://willard.fun/minekhan/")
+		Button.add(width / 2, height / 2 + 35, 400, 40, "Multiplayer", "main menu", nothing, always, "Multiplayer isn't possible at this time.")
 		Button.add(width / 2, height / 2 + 90, 400, 40, "Options", "main menu", r => changeScene("options"))
 
 		// Creation menu buttons
@@ -4592,8 +5255,8 @@ genChunk(chunk) {
 			}
 			return superflat
 		})
-		Button.add(width / 2, 285, 300, 40, "Game Mode: Survival", "creation menu", nothing, always, "Fully Coming Soon\n\nAfter the og maker took too long to make this ( i dont mind, i had a lot of fun making this) we have made our Own!, there is many thing that needs to, like an inventory system, or item drop, or mobs, ETC, but here is a beta!")
-		Button.add(width / 2, 335, 300, 40, "Difficulty: Peaceful", "creation menu", nothing, always, "Coming soon\n\nWe are working on it, but its lower on the list due to the possible difficulty.")
+		Button.add(width / 2, 285, 300, 40, "Game Mode: Creative", "creation menu", nothing, always, "Coming Soon\n\nPlease stop asking for survival features. I don't want to half-implement anything, and I don't currently have the systems in place to create a full-featured survival mode. It'll come in due time.")
+		Button.add(width / 2, 335, 300, 40, "Difficulty: Peaceful", "creation menu", nothing, always, "Coming soon\n\nPlease stop asking for mobs. Adding them will take a very long time. I know a lot of people want them, so just be patient.")
 		Button.add(width / 2, height - 90, 300, 40, "Create New World", "creation menu", r => {
 			world = new World()
 			world.id = Date.now()
@@ -4631,7 +5294,7 @@ genChunk(chunk) {
 		let mid = width / 2
 		Button.add(mid - 3 * x4, height - 30, w4, 40, "Edit", "loadsave menu", r => changeScene("editworld"), () => (selected() || !worlds[selectedWorld].edited))
 		Button.add(mid - x4, height - 30, w4, 40, "Delete", "loadsave menu", r => {
-			if (worlds[selectedWorld] && confirm(`Are you sure you want to deleat this world? ${worlds[selectedWorld].name} will be lost forever! (A long time!)`)) {
+			if (worlds[selectedWorld] && confirm(`Are you sure you want to delete ${worlds[selectedWorld].name}?`)) {
 				deleteFromDB(selectedWorld)
 				window.worlds.removeChild(document.getElementById(selectedWorld))
 				delete worlds[selectedWorld]
@@ -4705,24 +5368,12 @@ genChunk(chunk) {
 		
 		// Comingsoon menu buttons
 		Button.add(width / 2, 395, width / 3, 40, "Back", "comingsoon menu", r => changeScene(previousScreen))
-		
-		Button.add(width / 2 - 220, 195, width / 3, 50, "Respawn", "dead",  r => {
-			changeScene("play");
-			p.health = 17;
-		    p.x = 8;
-		    p.z = 8;
-		    play();
-		    p.y = superflat ? 6 : (Math.round(noise(8 * generator.smooth, 8 * generator.smooth) * generator.height) + 2 + generator.extra);
-		});
-		
-		let settingsState = true;
-		let mouseSense = 100;
 
 		// Multiplayer buttons
 		Button.add(width / 2, 395, width / 3, 40, "¯\\_(ツ)_/¯", "multiplayer menu", r => changeScene("main menu"))
 
 		// Settings Sliders
-		Slider.add(width/2, 245, width / 3, 40, "options", "Render Distance", 1, 62, "renderDistance", val => settings.renderDistance = Math.round(val))
+		Slider.add(width/2, 245, width / 3, 40, "options", "Render Distance", 1, 32, "renderDistance", val => settings.renderDistance = Math.round(val))
 		Slider.add(width/2, 305, width / 3, 40, "options", "FOV", 30, 110, "fov", val => {
 			p.FOV(val)
 			if (world) {
@@ -4866,14 +5517,15 @@ genChunk(chunk) {
 
 		// Crosshair
 		if (!p.spectator) {
-			ctx.lineWidth = 1
-			ctx.strokeStyle = "white"
+			ctx.lineWidth = 2
+			ctx.strokeStyle = "rgba(255, 255, 255, 0.6)"
 			ctx.beginPath()
 			ctx.moveTo(x - 10, y)
 			ctx.lineTo(x + 10, y)
 			ctx.moveTo(x, y - 10)
 			ctx.lineTo(x, y + 10)
-			ctx.stroke()
+			ctx.stroke();
+			
 		}
 
 		//Hotbar
@@ -4893,11 +5545,6 @@ genChunk(chunk) {
 		}
 		ctx.stroke()
 
-        let heart = document.getElementById('heartimg');
-        for(let i = 0;i < Math.floor(p.health/2);i++) {
-            ctx.drawImage(heart, width / 2 - 8 / 2 * s +20 * i, height - s * 1.5 - 25, s*0.6 -5, s*0.6 -5);
-        }
-
 		ctx.strokeStyle = "white"
 		ctx.lineWidth = 2
 		ctx.beginPath()
@@ -4913,9 +5560,7 @@ genChunk(chunk) {
 		+ "FPS: " + analytics.fps
 
 		if (p.autoBreak) {
-			text("Super breaker enabled", 5, height - 89, 12);
-			
-		Text("Health: "+Math.floor(p.health), 5, height - 103, 12);
+			text("Super breaker enabled", 5, height - 89, 12)
 		}
 
 		ctx.textAlign = 'right'
@@ -4940,7 +5585,7 @@ genChunk(chunk) {
 		ctx.lineWidth = 1
 		ctx.strokeStyle = "black"
 		ctx.beginPath()
-		for (y = 0; y < 10; y++) {
+		for (y = 0; y < 12; y++) {
 			ctx.moveTo(50.5 - s2, 50.5 - s2 + y * s)
 			ctx.lineTo(50.5 - s2 + s * perRow, 50.5 - s2 + y * s)
 		}
@@ -4985,6 +5630,10 @@ genChunk(chunk) {
 
 		if (inventory.holding) {
 			drawIcon(mouseX, mouseY, inventory.holding)
+			fill(255)
+			textSize(12)
+			//ctx.textAlign = 'center'
+			text(name, mouseX+20, mouseY-5)
 		}
 		for (let i = 1; i < BLOCK_COUNT; i++) {
 			x = (i - 1) % perRow * s + 50
@@ -5106,9 +5755,6 @@ genChunk(chunk) {
 					newWorldBlock()
 				}
 			}
-		}else if(screen === 'dead'){
-				releasePointer()
-				freezeFrame = true
 		} else if (screen === "inventory") {
 			clickInv()
 		}
@@ -5146,7 +5792,7 @@ genChunk(chunk) {
 		}
 
 		if (k === "enter") {
-			blockMode = blockMode === CUBE ? SLAB : (blockMode === SLAB ? STAIR : (blockMode === STAIR ? FLOWER : CUBE))
+			blockMode = blockMode === CUBE ? SLAB : (blockMode === SLAB ? STAIR : (blockMode === STAIR ? FLOWER : blockMode === FLOWER ? DOOR : (blockMode === DOOR ? TORCH : (blockMode === TORCH ? LANTERN : (blockMode === LANTERN ? HANGING : (blockMode === HANGING ? LADDER : CUBE))))))
 			updateHUD = true
 		}
 
@@ -5156,22 +5802,49 @@ genChunk(chunk) {
 				changeScene("pause")
 			}
 
-			if(k === "") {
+			if(k === "b") {
 				p.autoBreak = !p.autoBreak
 				updateHUD = true
 			}
+			
+			if(k === "f") {
+				updateHUD = true
+				block = world.getBlock(hitBox.pos[0], hitBox.pos[1], hitBox.pos[2]) & 0x3ff
+				index = inventory.hotbar.indexOf(block)
+				if (index >= 0) {
+					inventory.hotbarSlot = index
+				} else {
+					inventory.hotbar[inventory.hotbarSlot] = block
+				}
+			}
 
-			if (k === " " && liquid == true) {
-				p.gravityStength = -0.08;
-				if (Date.now() > p.lastJump ) {
-					p.velocity.y += p.jumpSpeed;
+			if (k === " " && !p.spectator) {
+				if (Date.now() < p.lastJump + 400) {
+					p.flying ^= true
 				} else {
 					p.lastJump = Date.now()
 				}
 			}
+			
+			if (k === "w") {
+				if (Date.now() < p.lastFwd + 200) {
+				    p.FOV(settings.fov + 10, 250)
+					p.sprinting ^= true
+				} else {
+					p.lastFwd = Date.now()
+				}
+			}
 
 			if (k === "z") {
-				p.FOV(10, 300)
+				p.FOV(10, 400)
+			}
+			
+			if (k === "n") {
+				p.FOV(300, 400)
+			}
+			
+			if (k === "x") {
+				p.FOV(140, 400)
 			}
 
 			if (k === "shift" && !p.flying) {
@@ -5184,7 +5857,7 @@ genChunk(chunk) {
 				p.bottomH = 1.32
 			}
 
-			if (k === "") {
+			if (k === "l") {
 				p.spectator = !p.spectator
 				p.flying = true
 				p.onGround = false
@@ -5292,11 +5965,9 @@ genChunk(chunk) {
 		if (screen === "play") {
 			play()
 		} else {
-			drawScreens[screen]();
-			Button.draw();
-			Slider.draw();
-			
-			
+			drawScreens[screen]()
+			Button.draw()
+			Slider.draw()
 		}
 	}
 
@@ -5517,7 +6188,6 @@ genChunk(chunk) {
 	function initPlayer() {
 		p = new Camera()
 		p.speed = 0.075
-		p.health = 20;
 		p.velocity = new PVector(0, 0, 0)
 		p.pos = new Float32Array(3)
 		p.sprintSpeed = 1.5
@@ -5540,6 +6210,7 @@ genChunk(chunk) {
 		p.lastBreak = Date.now()
 		p.lastPlace = Date.now()
 		p.lastJump = Date.now()
+		p.lastFwd = Date.now()
 		p.autoBreak = false
 		p.flying = false
 		p.sneaking = false
@@ -5664,39 +6335,58 @@ genChunk(chunk) {
 
 	// Define all the scene draw functions
 	(function() {
+	    let done = false
+	    let variable = Math.random() * 10
+	    let splashes = ["Many updates!", "Lanterns!", "Doors!", "Ladders!", "Torches!", "Structures coming soon!", "Could be stand-alone soon!", "Compare to Minecraft!", "Stay safe!", "Whee!!!!!"]
+	    let splash = Math.floor(Math.random() * 10)
+	    if (splash >= splashes.length) {
+	        splash = splashes.length
+	    }
 		function title() {
-			let title = "MINEKHAN"
-			let subtext = "JAVASCRIPT EDITION WARNING: BUGS"
+		    let title
+		    let subtext
+		    if (variable >= 9.8 && done === false) {
+			    title = "MINKEHAN"
+			    subtext = "Check out our alt, MineKhan!"
+		    }
+		    else if (variable < 9.8 && done === false) {
+		        title = "MINEKHAN"
+		        subtext = splashes[splash]
+		    }
 			let font = "VT323,monospace"
 			strokeWeight(1)
 			ctx.textAlign = 'center'
 
 			ctx.font = "bold 120px " + font
-			fill(30)
+			fill(0)
 			text(title, width / 2, 158)
-			fill(40)
+			fill(70)
 			text(title, width / 2, 155)
 			ctx.font = "bold 121px " + font
-			fill(50)
+			fill(80)
 			text(title, width / 2, 152)
-			fill(70)
-			text(title, width / 2, 150)
 			fill(90)
+			text(title, width / 2, 150)
+			fill(120)
 			ctx.font = "bold 122px " + font
 			text(title, width / 2, 148)
-			fill(110)
+			fill(140)
 			text(title, width / 2, 145)
-
+            
 			ctx.font = "bold 32px " + font
-			fill(50)
-			text(subtext, width / 2-1, 180)
-			text(subtext, width / 2+1, 180)
-			text(subtext, width / 2, 179)
-			text(subtext, width / 2, 181)
+			fill(0)
+			ctx.rotate(-20 * Math.PI / 180)
+			text(subtext, width / 1.7-1, 310)
+			text(subtext, width / 1.7+1, 310)
+			text(subtext, width / 1.7, 310-1)
+			text(subtext, width / 1.7, 310+1)
 			ctx.font = "bold 32px " + font
-			fill(150)
-			text(subtext, width / 2, 180)
+			fill(255,255,0)
+			text(subtext, width / 1.7, 310)
+			ctx.rotate(20 * Math.PI / 180)
 		}
+		
+		
 		const clear = () => ctx.clearRect(0, 0, canvas.width, canvas.height)
 		const dirt = () => ctx.putImageData(dirtbg, 0, 0)
 
@@ -5713,15 +6403,7 @@ genChunk(chunk) {
 			controls()
 			runGravity()
 			resolveContactsAndUpdatePosition()
-			
-			if(p.health < 20) {
-			    p.health+=0.04;
-			}
-			
-			if(p.health > 20) {
-			    p.health = 20;
-			}
-			
+
 			if (updateHUD) {
 				clear()
 				gl.clearColor(0, 0, 0, 0)
@@ -5834,7 +6516,7 @@ genChunk(chunk) {
 			drawScreens[screen]()
 		}
 
-		if (Date.now() - analytics.lastUpdate > 50 && analytics.frames) {
+		if (Date.now() - analytics.lastUpdate > 500 && analytics.frames) {
 			analytics.displayedTickTime = (analytics.totalTickTime / analytics.frames).toFixed(1)
 			analytics.displayedRenderTime = (analytics.totalRenderTime / analytics.frames).toFixed(1)
 			analytics.displayedFrameTime = (analytics.totalFrameTime / analytics.frames).toFixed(1)
