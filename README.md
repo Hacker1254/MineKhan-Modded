@@ -14,11 +14,11 @@ This is a Mod of Minekhan
  - add clouds
  
 # Links to the app
-[Game](https://minekhan.guineapigbridge.repl.co/). This version will be updated the most
-[Help](https://github.com/Hacker1254/MineKhan-Modded/issues). Save. Our. Souls.
-[Our website](https://www-1.guineapigbridge.repl.co/)
+ - [Game](https://minekhan.guineapigbridge.repl.co/). This version will be updated the most
+ - [Help](https://github.com/Hacker1254/MineKhan-Modded/issues). Save. Our. Souls.
+ - [Our website](https://www-1.guineapigbridge.repl.co/)
 
 # The original versions
 
-[Thingmaker's minekhan](https://minekhan--thingmaker.repl.co/)
-[Willard](https://willard.fun/minekhan/)
+ - [Thingmaker's minekhan](https://minekhan--thingmaker.repl.co/)
+ - [Willard](https://willard.fun/minekhan/)
